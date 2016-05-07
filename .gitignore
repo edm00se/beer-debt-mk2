@@ -3,3 +3,5 @@
 /.tmp
 /.sass-cache
 /bower_components
+/ODP/WebContent/*
+!/ODP/WebContent/WEB-INF/
