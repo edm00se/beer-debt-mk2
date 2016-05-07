@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<agent name='(createDebt)' xmlns='http://www.lotus.com/dxl' version='9.0'
+ maintenanceversion='1.5' replicaid='86257FAB000C754E' hide='v3' publicaccess='false'
+ designerversion='8.5.3'>
+<noteinfo noteid='1ba' unid='4441249E16509E0086257FAA007FFF3B' sequence='39'>
+<created><datetime dst='true'>20160505T181804,11-05</datetime></created>
+<modified><datetime dst='true'>20160507T094421,44-05</datetime></modified>
+<revised><datetime dst='true'>20160507T094421,43-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20160507T094421,43-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20160505T211605,64-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=eric_mccormick_boldt_com/O=Bluemix</name></updatedby>
+<wassignedby><name>CN=eric_mccormick_boldt_com/O=Bluemix</name></wassignedby>
+<designchange><datetime dst='true'>20160507T094421,41-05</datetime></designchange>
+<trigger type='agentlist'/>
+<documentset type='runonce'/><code event='options'><lotusscript>%REM
+	Create beer debt from http POST
+%END REM
+Option Public
+
+</lotusscript></code><code event='initialize'><lotusscript>Sub Initialize
+
+	Dim ses As New NotesSession
+	Dim db As NotesDatabase
+	Set db = ses.Currentdatabase
+	Dim doc As NotesDocument
+	Set doc = ses.Documentcontext
+	Dim postStr As String
+	postStr = doc.Request_Content(0)
+	Dim newdoc As NotesDocument
+	Set newdoc = db.CreateDocument
+	newdoc.form = "beerDebt"
+	newdoc.rawdata = postStr
+	debtData = Evaluate(|@Explode(rawdata;'~')|,newdoc)
+	For x = 0 To Ubound(debtData)
+		Call newdoc.replaceitemvalue( Strtoken(debtData(x),"#",1),Strtoken(debtData(x),"#",2))
+	Next
+	Call newdoc.save(1,1)
+	
+End Sub</lotusscript></code></agent>
+

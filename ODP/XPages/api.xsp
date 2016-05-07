@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xe="http://www.ibm.com/xsp/coreex">
+
+	<!-- CREATE -->
+	<xe:restService
+		id="restService2"
+		pathInfo="createBeerDebt">
+		<xe:this.service>
+			<xe:customRestService
+				contentType="application/json"
+				requestContentType="application/json"
+				requestVar="req">
+				<xe:this.doPost><![CDATA[#{javascript:print("doPost");
+var newdoc:NotesDocument = session.getCurrentDatabase().createDocument();
+newdoc.replaceItemValue("who",req.who);
+newdoc.replaceItemValue("quantity",req.quantity);
+newdoc.replaceItemValue("reasons",req.reasons);
+newdoc.replaceItemValue("form","beerDebt");
+newdoc.save();
+//return success
+var msg = "created new entry for "+req.who+", with UNID: "+newdoc.getUniversalID();
+return toJson({error: false, success: true, message: msg});}]]></xe:this.doPost>
+			</xe:customRestService>
+		</xe:this.service>
+	</xe:restService>
+
+	<!-- DELETE -->
+	<xe:restService
+		id="restService3"
+		pathInfo="deleteBeerDebt">
+		<xe:this.service>
+			<xe:customRestService
+				contentType="application/json"
+				requestContentType="application/json"
+				requestVar="req">
+				<xe:this.doPost><![CDATA[#{javascript:print("doPost"); 
+var newdoc:NotesDocument = session.getCurrentDatabase().getDocumentByUNID(req.unid);
+newdoc.remove(true);
+var msg = "deleted document " + req.unid;
+return toJson({error: false, success: true, message: msg});}]]></xe:this.doPost>
+			</xe:customRestService>
+		</xe:this.service>
+	</xe:restService>
+
+	<!-- SAVE (UPDATE) -->
+	<xe:restService
+		id="restService1"
+		pathInfo="updateBeerDebt">
+		<xe:this.service>
+			<xe:customRestService
+				contentType="application/json"
+				requestContentType="application/json"
+				requestVar="req">
+				<xe:this.doPost><![CDATA[#{javascript:print("doPost"); 
+var newdoc:NotesDocument = session.getCurrentDatabase().getDocumentByUNID(req.unid);
+print(req.who);
+print(req.quantity);
+print(req.reasons);
+newdoc.replaceItemValue("who",req.who);
+newdoc.replaceItemValue("quantity",req.quantity);
+newdoc.replaceItemValue("reasons",req.reasons);
+print("saving...");
+newdoc.save();
+var msg = "updated document " + req.unid;
+return toJson({error: false, success: true, message: msg});}]]></xe:this.doPost>
+			</xe:customRestService>
+		</xe:this.service>
+	</xe:restService>
+
+	<!-- EDIT -->
+	<xe:restService
+		id="restService4"
+		pathInfo="getBeerDebt">
+		<xe:this.service>
+			<xe:customRestService
+				contentType="application/json"
+				requestVar="req"
+				requestContentType="application/json">
+				<xe:this.doPost><![CDATA[#{javascript:
+var newdoc:NotesDocument = sessi//smcmanus6540.psclistens.com/iconus/beardapp.nsf35A3BEFE59D5FA1186257FA70009011235A3BEFE59D5FA1186257FA700090112on.getCurrentDatabase().getDocumentByUNID(req.unid);
+var data = {"who":req.who,
+			"quantity": req.quantity,
+			"reason": req.reason}
+print(data.who)
+return toJson({error: false, success: true, message:data});}]]></xe:this.doPost>
+			</xe:customRestService>
+		</xe:this.service>
+	</xe:restService>
+
+	<!-- VIEW -->
+	<xe:restService
+		pathInfo="beerDebt"
+		id="restBeerDebt"
+		jsId="">
+		<xe:this.service>
+			<xe:viewItemFileService
+				viewName="debt"
+				count="1000"
+				defaultColumns="true">
+				<xe:this.search>
+					<![CDATA[#{javascript:var temp = context.getUrlParameter('query');
+var theSearch = temp;
+return theSearch;}]]>
+				</xe:this.search>
+				<xe:this.columns>
+					<xe:restViewColumn name="cnt">
+						<xe:this.value>
+							<![CDATA[#{javascript: return requestScope.get("count");}]]>
+						</xe:this.value>
+					</xe:restViewColumn>
+				</xe:this.columns>
+			</xe:viewItemFileService>
+		</xe:this.service>
+	</xe:restService>
+</xp:view>
