@@ -1,0 +1,11 @@
+{
+  "port": 8000,
+  "server": {
+    "baseDir": "./app",
+    "directory": true,
+    "routes": {
+      "/bower_components": "bower_components"
+    }
+  },
+  "serveStatic": ["./app", "./bower_components"]
+}

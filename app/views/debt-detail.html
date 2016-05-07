@@ -1,0 +1,42 @@
+<div class="panel panel-primary">
+    <div class="panel-heading panel-heading-custom">
+        <h2 class="">Beer Debt Details</h2>
+    </div>
+</div>
+<div class="row" style="width: 50%">
+    <div class="col-sm-4">
+        <label>ID</label>
+        <br/>
+        <input class="form-control" name="who" type="text" value="{{debt.id}}" ng-model="debt.id">
+    </div>
+</div>
+<div class="row" style="width: 50%">
+    <div class="col-sm-4">
+        <label>Who</label>
+        <br/>
+        <input id="debt-who" class="form-control" name="who" type="text" value="{{debt.who}}" ng-model="debt.who">
+    </div>
+</div>
+<div class="row" style="width: 50%">
+    <div class="col-sm-4">
+        <label>Quantity</label>
+        <br/>
+        <input id="debt-quantity" class="form-control" name="quantity" type="text" value="{{debt.quantity}}" ng-model="debt.quantity">
+    </div>
+</div>
+<div class="row" style="width: 50%">
+    <div class="col-sm-4">
+        <label>Reasons</label>
+        <br/>
+        <input id="debt-reasons" class="form-control" name="reasons" type="text" value="{{debt.reasons}}" ng-model="debt.reasons">
+    </div>
+</div>
+<br/>
+<div class="row" style="width: 50%">
+    <div class="col-sm-2">
+        <a class="btn btn-default" href="#/">Cancel</a>
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-default" ng-click="updateDebt(debt.id,debt.who,debt.quantity,debt.reasons)">Save via xe:RestService</button>
+    </div>
+</div>

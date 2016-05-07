@@ -1,12 +1,5 @@
-ODP/WebContent/libs/*
-ODP/WebContent/index.html
-ODP/WebContent/style.min.css
-ODP/WebContent/scripts.js
-ODP/WebContent/partials
-src/libs
-ODP/WebContent/*.txt
-.DS_Store
-node_modules/*
-public
-.sonar
-
+/node_modules
+/dist
+/.tmp
+/.sass-cache
+/bower_components
