@@ -39,7 +39,7 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
           $scope.debt = returnData;
           console.log($scope.debt);
           //location.href = 'debt-detail.html';
-          $location.path('#/details')
+          $location.path('#/details');
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -57,7 +57,7 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
           $scope.debt = data;
           console.log($scope.debt);
           //location.href = 'debt-detail.html';
-          $location.path('#/details')
+          $location.path('#/details');
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -68,7 +68,7 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
 ]);
 
 homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
-  function($scope, $http) {
+  function($scope, $http, $location) {
     var vm = this;
 
     console.log('home controlleer = debtDetailCtrl');
@@ -82,7 +82,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
           console.log('succcess');
           console.log(data);
           //location.href = 'index.html';
-          $location.path('#/')
+          $location.path('#/');
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -98,7 +98,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
         .success(function(data) {
           console.log('succcess, msg: ' + data);
           //location.href = 'index.html';
-          $location.path('#/')
+          $location.path('#/');
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -117,7 +117,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
       $http.post(path + 'api.xsp/updateBeerDebt', data)
         .success(function(returnData) {
           //location.href = 'index.html';
-          $location.path('#/')
+          $location.path('#/');
           console.log('Update success: ' + returnData);
         })
         .error(function(data) {
