@@ -3,8 +3,8 @@
 var path = '/'; // making relative path to the NSF
 var homeControllers = angular.module('homeControllers', []);
 
-homeControllers.controller('DebtListCtrl', ['$scope', '$http',
-  function($scope, $http) {
+homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
+  function($scope, $http, $location) {
     var vm = this;
 
     //var myURL = '/api.xsp/beerDebt';
@@ -38,7 +38,8 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http',
         .success(function(returnData) {
           $scope.debt = returnData;
           console.log($scope.debt);
-          location.href = 'debt-detail.html';
+          //location.href = 'debt-detail.html';
+          $location.path('#/details')
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -55,7 +56,8 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http',
             //console.log(toJson(data))
           $scope.debt = data;
           console.log($scope.debt);
-          location.href = 'debt-detail.html';
+          //location.href = 'debt-detail.html';
+          $location.path('#/details')
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -79,7 +81,8 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
         .success(function(data) {
           console.log('succcess');
           console.log(data);
-          location.href = 'index.html';
+          //location.href = 'index.html';
+          $location.path('#/')
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -94,7 +97,8 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
       $http.post(path + '/(createDebt)?OpenAgent', debtData)
         .success(function(data) {
           console.log('succcess, msg: ' + data);
-          location.href = 'index.html';
+          //location.href = 'index.html';
+          $location.path('#/')
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -112,7 +116,8 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout',
       console.log(data.unid);
       $http.post(path + 'api.xsp/updateBeerDebt', data)
         .success(function(returnData) {
-          location.href = 'index.html';
+          //location.href = 'index.html';
+          $location.path('#/')
           console.log('Update success: ' + returnData);
         })
         .error(function(data) {
