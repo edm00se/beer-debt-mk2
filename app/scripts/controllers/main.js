@@ -68,7 +68,7 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
 ]);
 
 homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$location',
-  function($scope, $http, $location) {
+  function($scope, $http, $timeout, $location) {
     var vm = this;
 
     console.log('home controlleer = debtDetailCtrl');
