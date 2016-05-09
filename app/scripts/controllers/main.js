@@ -77,7 +77,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
         });
     };
 
-    if( null != exUnid && undefined != exUnid ){
+    if( null !== exUnid && undefined !== exUnid ){
       vm.loadValues(exUnid);
     }
 
