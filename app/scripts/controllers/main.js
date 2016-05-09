@@ -1,6 +1,6 @@
 'use strict';
 
-var path = '/'; // making relative path to the NSF
+var path = ''; // making relative path to the NSF
 var homeControllers = angular.module('homeControllers', []);
 
 homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
