@@ -1,376 +1,502 @@
 <?xml version='1.0' encoding='utf-8'?>
-<view name='debt' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.5'
- replicaid='86257FAB000C754E' showinmenu='false' noreplace='true' publicaccess='false'
- designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
- headers='beveled' opencollapsed='false' showresponsehierarchy='true' showmargin='true'
- shrinkrows='false' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
- rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='black'
- headerbgcolor='white' boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
- allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
- uniquekeys='false'>
-<noteinfo noteid='14a' unid='8B1BD732251251D186257FA100074B68' sequence='10'>
-<created><datetime dst='true'>20160425T201940,56-05</datetime></created>
-<modified><datetime dst='true'>20160507T094422,28-05</datetime></modified>
-<revised><datetime dst='true'>20160507T094422,27-05</datetime></revised>
-<lastaccessed><datetime dst='true'>20160507T094422,27-05</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20160505T211605,10-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=eric_mccormick_boldt_com/O=Bluemix</name></updatedby>
-<wassignedby><name>CN=eric_mccormick_boldt_com/O=Bluemix</name></wassignedby><code
- event='selection'><formula>SELECT ((Form = "beerDebt"))</formula></code>
-<actionbar bgcolor='#f0f0f0' bordercolor='black'>
-<actionbuttonstyle bgcolor='#f0f0f0'/><font size='9pt' color='system'/><border
- style='solid' width='0px 0px 1px' color='system'/>
-<action title='Magic Button' showinrightbuttonmenu='true'><code event='click'><formula
->REM {Edit Document Fields 6.0.0 by Chad Schelfhout.};
-REM {Visit http://www.chadsmiley.com/EditDocumentFields for the latest updates};
-
-REM {Changable constants};
-cEnableConfirmation := @True;
-cFieldHistoryValues := 10;
-cStandardSeparators := ":" : ";" : " ";
-cPromptTitle := @DbTitle + " - " + @ViewTitle;
-
-REM {Unchangable constants};
-cProfileName := "ChadSmiley Tools";
-cEditLastField := "edfLastField";
-cEditLastFieldDataType := "edfLastFieldDataType";
-cEditLastFieldDataTypeValue := "edfLastFieldDataTypeValue";
-cEditLastSeparator := "%~%";
-cValueListSeparator := "^";
-cFromRawValueSeparator := "%@%";
-cSemicolonReplace := "#SC#";
-cMaxSearchForSelectedDocs := 5520;
-cMaxUpdatedDocuments := 1000;
-cArraySeparator := ";";
-cNoteEntryLength := 11;
-cPromptNewLineOne := @Char(13);
-cPromptNewLineTwo := cPromptNewLineOne + cPromptNewLineOne;
-cPromptTab := @Char(9);
-cCategoryNoteID := "NT00000000";
-cTextExtractList := "Text Left":"Text Left Back":"Text Right":"Text Right Back";
-cNoPromptList := cTextExtractList:"Remove Field":"Unique":"Sort Ascending":"Sort Descending":"Implode":"Explode":"Proper Case Text":"Proper Case Text Multi Value":"Lower Case Text":"Lower Case Text Multi Value":"Upper Case Text":"Upper Case Text Multi Value":"Password Convert":"Trim":"Trim then Unique";
-cErrorCheckCode := "@Implode( @Unique( @Explode( NoteIDList : ErrorNoteID ; cArraySeparator ; @False ) ) )";
-cErrorInformation := "\"Error documents: \" + @Implode( @Unique( @Explode( ErrorNoteIDList ; cArraySeparator ; @False ) ) ; \", \" ) + cPromptNewLineOne + \"Not updated documents: \" + @Implode( @Unique( @Explode( ErrorNoteIDList ; cArraySeparator ; @False ) ) ; \", \" )";
-
-
-REM {Data types|@Function execution};
-DataTypesCombo := @Explode(
-"Integer|@TextToNumber( RawValue )$"+
-"Integer Multi Value|@TextToNumber( @Explode( RawValue ; Separator; @True) )$"+
-"Date|@ToTime( RawValue )$"+
-"Date Multi Value|@ToTime( @Explode( RawValue ; Separator; @True) )$"+
-"Text|@Text( RawValue )$"+
-"Text Multi Value|@Text( @Explode( RawValue ; Separator; @True) )$"+
-"Text Left|@Left( @Text( @GetField( EditField[ef] ) ) ; ExtractValue )$"+
-"Text Left Back|@LeftBack( @Text( @GetField( EditField[ef] ) ) ; ExtractValue )$"+
-"Text Right|@Right( @Text( @GetField( EditField[ef] ) ) ; ExtractValue )$"+
-"Text Right Back|@RightBack( @Text( @GetField( EditField[ef] ) ) ; ExtractValue )$"+
-"Trim|@Trim( @Text( @GetField( EditField[ef] ) ) )$"+
-"Trim then Unique|@Unique(@Trim( @Text( @GetField( EditField[ef] ) ) ) )$"+
-"Name|RawValue$"+
-"Name Multi Value|RawValue$"+
-"Common Name|@Name( [CN]; RawValue )$"+
-"Common Name Multi Value|@Name( [CN]; @Explode( RawValue ; \":\"; @True ) )$"+
-"Upper Case Text|@UpperCase( @Implode( @Text( @GetField( EditField[ef] ) ) ) )$"+
-"Lower Case Text|@LowerCase( @Implode( @Text( @GetField( EditField[ef] ) ) ) )$"+
-"Proper Case Text|@ProperCase( @Implode( @Text( @GetField( EditField[ef] ) ) ) )$"+
-"Upper Case Text Multi Value|@UpperCase( @Explode( @Text( @GetField( EditField[ef] ) ) ; Separator; @True ))$"+
-"Lower Case Text Multi Value|@LowerCase( @Explode( @Text( @GetField( EditField[ef] ) ) ; Separator; @True) )$"+
-"Proper Case Text Multi Value|@ProperCase( @Explode( @Text( @GetField( EditField[ef] ) ) ; Separator; @True) )$"+
-"Replace Substring|@ReplaceSubstring( @GetField( EditField[ef] ); FromRawValue ; RawValue )$"+
-"Replace|@Explode( @Replace( @GetField( EditField[ef] ) ; FromRawValue ; RawValue ) ; Separator ; @True )$"+
-"Implode|@Implode( @Text( @GetField( EditField[ef] ) ) ; Separator )$"+
-"Explode|@Explode( @Text( @GetField( EditField[ef] ) ) ; Separator; @True )$"+
-"Formula|@Eval( RawValue )$"+
-"Abbreviate Name|@Name([Abbreviate]; RawValue )$"+
-"Abbreviate Name Multi Value|@Name( [Abbreviate]; @Explode( RawValue ; Separator; @True ) )$"+
-"Password Set|@Password( RawValue )$"+
-"Password Convert|@Password( @GetField( EditField[ef] ) )$"+
-"Remove Field|@DeleteField$"+
-"Unique|@Unique(@GetField( EditField[ef]))$"+
-"+ Append Values|@If(" +
-" @GetField(EditField[ef]) = \"\"; RawValue;" +
-" @Contains(DefaultDataType; \"Date\");" +
-" @If( @IsError( @ToTime( RawValue ) ) ;" +
-" \"\" ;" +
-" @SetField( EditField[ef] ; @GetField(EditField[ef]) : @TextToTime( @Explode( RawValue ; Separator ) ) ) ) ;" +
-" @Contains(DefaultDataType; \"Integer\" );" +
-" @If( @IsError( @TextToNumber( @Explode( RawValue ; Separator ) ) ) ;" +
-" \"\" ;" +
-" @SetField( EditField[ef] ; @GetField(EditField[ef]) : @TextToNumber( @Explode( RawValue ; Separator ) ) ) ) ;" +
-" @SetField( EditField[ef] ; @GetField(EditField[ef]) : @Explode( RawValue ; Separator ) ) )$"+
-"Sort Ascending|@Sort(@GetField(EditField[ef]) ; [Ascending] )$"+
-"Sort Descending|@Sort(@GetField(EditField[ef]); [Descending])" ; "$" );
-
-DataTypes := @Word( DataTypesCombo ; "|" ; 1 );
-DataTypesAction := @Word( DataTypesCombo ; "|" ; 2 );
-
-REM {Get a listing of all the fields on the current document};
-List := @Sort( @DocFields );
-
-REM {Look for last field modified in Profile Doc};
-FieldList := @Explode( @GetProfileField( cProfileName ; cEditLastField ; @UserName ) ; cArraySeparator ; @True ) ;
-
-REM {Get the list of forms and field that was updated using Edit Document Fields};
-FieldListForms := @Word( FieldList ; cEditLastSeparator ; 1 );
-FieldListField := @Word( FieldList ; cEditLastSeparator ; 2 );
-FieldListLastIndex := @Member( Form; FieldListForms );
-REM {If the FieldListLastIndex is greater than zero then set the last field to the what was in the profile document};
-@If( FieldListLastIndex &gt; 0;
-@Do( LastField := FieldListField[ FieldListLastIndex ];
-FieldList := @ReplaceSubstring( FieldList ; FieldList[ FieldListLastIndex ] ; "" ) );
-LastField :="" );
-
-REM {Prompt for which field needs to be updated. Loop until a field is selected or 'Cancel' is selected};
-@DoWhile(
-EditField := @Prompt( [OkCancelEditCombo] ; cPromptTitle ; "Select the field you wish to alter or enter a new field to add:" ; LastField ; @Trim( @Unique( List : LastField ) ) );
-EditField = "" );
-EditFieldPromptTitle := "Change '" + EditField + "' in " + cPromptTitle;
-
-REM {This will allow the retrieval of the data type of the field that was last selected. Data is stored like Form+Field%~%DataType.};
-FormFieldList := @Explode( @GetProfileField( cProfileName ; cEditLastFieldDataType ; @UserName ) ; cArraySeparator ; @True ) ;
-FormFieldListFormField := @Word( FormFieldList ; cEditLastSeparator ; 1 );
-FormFieldListDataType := @Word( FormFieldList ; cEditLastSeparator ; 2 );
-FormFieldListFormulaCode := @ReplaceSubstring( @Word( FormFieldList ; cEditLastSeparator ; 3 ) ; cSemicolonReplace ; ";" );
-FormFieldListIndex := @Member( Form + EditField; FormFieldListFormField );
-@If( FormFieldListIndex &gt; 0;
-@Do( DefaultDataType := FormFieldListDataType[ FormFieldListIndex ];
-FormFieldListFormulaCode := FormFieldListFormulaCode[ FormFieldListIndex ];
-FormFieldList := @ReplaceSubstring( FormFieldList ; FormFieldList[ FormFieldListIndex ] ; "" ) );
-DefaultDataType :="" );
-
-REM {If there was no data type used for the field on the form the try to determine the data type};
-DefaultDataType :=
-@If( DefaultDataType != "" ;
-DefaultDataType ;
-@If(
-@IsNumber( @GetField( EditField ) ) ;
-@If( @Count( @GetField( EditField ) ) &gt; 1 ;
-"Integer Multi Value" ;
-"Integer" ) ;
-@IsTime( @GetField( EditField ) ) ;
-@If( @Count( @GetField( EditField ) ) &gt; 1 ;
-"Date Mult iValue" ;
-"Date" ) ;
-@If( @Count( @GetField( EditField ) ) &gt; 1 ;
-"Text Multi Value" ;
-"Text" )
-)
-);
-
-REM {If the data type is a type of error then select the data type of text};
-DefaultDataType := @IfError( DefaultDataType ; "Text" );
-
-REM {Prompt for which data type you would like the data to be. This needs to be done before value prompt to determine if the Picklist or any prompting needs to be used.};
-DataType := @Prompt( [OkCancelList] ; EditFieldPromptTitle; "Please select the correct data type or action for field: " + EditField + "."; DefaultDataType ; DataTypes );
-
-REM {The DataTypeAction will contain the formula that will be executed to retrieve the new value};
-DataTypeAction := DataTypesAction[ @Member( DataType ; DataTypes ) ];
-
-REM {If formula was used on this field then use that instead of the fields value. Format the original value as text because the @Prompt command requires text.};
-OriginalValue := @If( DataType = "Formula" &amp; DefaultDataType = "Formula" &amp; FormFieldListFormulaCode != "" ;
-FormFieldListFormulaCode ;
-@If( @Contains( DefaultDataType ; MultiValue ) ;
-@Implode( @Text( @GetField( EditField ) ) ; cArraySeparator );
-@Text( @GetField( EditField ) ) )
-);
-
-REM {This will allow the retrieval of history of values of the field. Data is stored like Form+Field+DataType%~%ValueList.};
-FormFieldListDataTypeValues := @Explode( @GetProfileField( cProfileName ; cEditLastFieldDataTypeValue ; @UserName ) ; cArraySeparator ; @True ) ;
-FormFieldListFormFieldDataType := @Word( FormFieldListDataTypeValues ; cEditLastSeparator ; 1 ) ;
-FormFieldListValuesLists := @Word( FormFieldListDataTypeValues ; cEditLastSeparator ; 2 ) ;
-FormFieldListDTIndex := @Member( Form + EditField + DataType; FormFieldListFormFieldDataType );
-@If( FormFieldListDTIndex &gt; 0;
-@Do( FormFieldListValuesList := FormFieldListDataTypeValues[ FormFieldListDTIndex ];
-FormFieldListValuesList := @ReplaceSubstring( @Trim( @Explode( FormFieldListValuesLists[ FormFieldListDTIndex ] ; cValueListSeparator ; @False ) ) ; cSemicolonReplace; ";" );
-FormFieldListDataTypeValues := @ReplaceSubstring( FormFieldListDataTypeValues ; FormFieldListDataTypeValues[ FormFieldListDTIndex ] ; "" ) );
-FormFieldListValuesList :="" );
-
-REM {Prompt for additional fields and determine the string that they are searching for.};
-@If( DataType = ("Replace Substring":"Replace" ) ;
-@Do( EditField := @Unique( EditField : @Prompt( [OkCancelListMult] ; cPromptTitle ; "Select any addtional fields you wish to alter:" ; EditField ; List ) );
-FromRawValue := @Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle ; "Enter or select the text (case sensitive) to search for in: " + @Implode( EditField ; ", " ) + "." ; "" ; @Unique( @Word( FormFieldListValuesList ; cFromRawValueSeparator ; 2 ) ) ) );
-@Do( EditField := EditField;
-FromRawValue := "" )
-);
-
-REM { With the Edit combo there will be a list of standard seperators to choose from.};
-Separator := @If( DataType = ("Implode":"Explode" ) ;
-@Prompt( [OkCancelEditCombo] ; cPromptTitle ; "Enter or select the " + @If( DataType = "Implode" ; "separator" ; "separators" ) + ":" ; "" ; @Unique( @If( FormFieldListValuesList = "" ; cStandardSeparators ; FormFieldListValuesList : cStandardSeparators ) ) );
-cArraySeparator );
-
-REM {Determine the string to search for};
-ExtractValue := @If( DataType = cTextExtractList ;
-@Prompt( [OkCancelEditCombo] ; cPromptTitle ; "Enter or select the search string or string length:" ; @Subset( FormFieldListValuesList ; 1 ) ; @Unique( FormFieldListValuesList ) );
-"" );
-
-REM {Based on what type of data is being entered different prompts will happen if any at all.};
-RawValue := @If(
-@Contains( DataType ; "Name Multi Value" ) ; @PickList( [Name] );
-@Contains( DataType ; "Name" ) ; @PickList( [Name] : [Single] );
-DataType = ( cNoPromptList ) ; "" ;
-@Contains( DataType ; "Multi Value" ) ; @Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle; "Enter or select the new desired value for: " + @Implode( EditField ; ", " ) + "." + cPromptNewLineTwo + "Seperated with ; for each value." ; OriginalValue ; @Unique( OriginalValue : FormFieldListValuesList ) ) ;
-@Contains( DataType ; "+ Append Values" ) ; @Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle; "Enter or select values to append: " + @Implode( EditField ; ", " ) + "." + cPromptNewLineTwo + "Seperated with ; for each value." ; "" ; @Unique( FormFieldListValuesList ) ) ;
-DataType = ("Replace Substring":"Replace" ) ; @Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle ; "Enter or select the text to repalce with in: " + EditField + "." ; "" ; @Unique( @Word( FormFieldListValuesList ; cFromRawValueSeparator ; 1 ) ) ) ;
-DataType = "Formula" ; @Do( @DoWhile(
-OriginalValue := @Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle ; "Enter or select the new desired formula for: " + EditField + "." ; OriginalValue ; @Unique( OriginalValue : FormFieldListValuesList ) );
-tempReturnCheck := @CheckFormulaSyntax( OriginalValue );
-@If( tempReturnCheck != "1"; @Prompt( [Ok] ; "Invalid Formula - " + EditFieldPromptTitle ;
-"Invalid Formula entered: " +
-cPromptNewLineTwo + cPromptTab + "Error: " + cPromptTab + cPromptTab + @Text( tempReturnCheck ) +
-cPromptNewLineOne + cPromptTab + "Formula: " + cPromptTab + cPromptTab + OriginalValue ) ; "" );
-tempReturnCheck != "1" );
-OriginalValue );
-@Prompt( [OkCancelEditCombo] ; EditFieldPromptTitle ; "Enter or select the new desired value for: " + EditField + "." ; OriginalValue ; @Unique( OriginalValue : FormFieldListValuesList ) )
-);
-
-REM {Store Field in Profile doc};
-@SetProfileField( cProfileName ; cEditLastField ; @Unique( @Trim( FieldList : ( Form + cEditLastSeparator + EditField[1] ) ) ); @UserName );
-
-REM {Store Data Type of Field in Profile doc};
-@SetProfileField( cProfileName ; cEditLastFieldDataType ;
-@Unique( @Trim( FormFieldList : ( Form + EditField[1] + cEditLastSeparator + DataType + cEditLastSeparator +
-@ReplaceSubstring(
-@If( DataType = "Formula" ; RawValue ; FormFieldListFormulaCode ) ;
-";" ; cSemicolonReplace ) ) ) ) ;
-@UserName );
-
-REM {Store Data Value of Field in Profile doc};
-@SetProfileField( cProfileName ; cEditLastFieldDataTypeValue ;
-@Unique( @Trim( FormFieldListDataTypeValues : ( Form + EditField[1] + DataType + cEditLastSeparator +
-@Implode(
-@Subset(
-@Unique(
-@ReplaceSubstring(
-@If( DataType = ("Implode":"Explode" ) ; Separator ;
-DataType = cTextExtractList ; ExtractValue ;
-DataType = ( "Replace Substring":"Replace" ) ; RawValue + cFromRawValueSeparator + FromRawValue ;
-RawValue ) : FormFieldListValuesList ;
-";" ; cSemicolonReplace ) ) ;
-cFieldHistoryValues );
-cValueListSeparator ) ) ) ) ;
-@UserName );REM {If multi docs selected, only process those checked ... an unchecked doc cannot be NavNextSelected};
-@Command([NavNextSelected]);
-@UpdateFormulaContext;
-
-REM {Store all Note IDs before manipulation in case field modifications cause categorized views or sorted columns to reorganize};
-NoteIDList := @Text( @NoteID );
-ErrorNoteIDList := "";
-@Command([NavNextSelected]);
-@UpdateFormulaContext;
-
-REM {Start Looping Selected documents to gather all the documents that need to be updated.};
-@While( ( @Left( NoteIDList ; cNoteEntryLength ) != ( @Text( @NoteID + cArraySeparator ) ) ) &amp; ( @Length( NoteIDList ) &lt; cMaxSearchForSelectedDocs ) ;
-NoteIDList := NoteIDList + cArraySeparator + @Text( @NoteID );
-NoteIDList := @ReplaceSubstring( NoteIDList ; cCategoryNoteID + cArraySeparator ; "" );
-@Command([NavNextSelected]);
-@UpdateFormulaContext
-);
-REM {Remove all category Note IDs};
-NoteIDList := @ReplaceSubstring( NoteIDList ; cCategoryNoteID ; "" );
-REM {Remove all duplicate Note IDs};
-NoteIDList := @Unique( @Explode( NoteIDList ; cArraySeparator ; @False ) );
-@StatusBar( "Found " + @Text( @Elements( NoteIDList ) ) + " documents." );
-NotNoteIDList := "";
-
-REM {Determine if the document should be updated.};
-tmpPrompt := @Implode( "The following information will be used to update the " + @Text( @Elements( NoteIDList ) ) + " document" + @If( @Elements( NoteIDList ) &gt; 1 ; "s" ; "" ) + "." + cPromptTab + cPromptTab +
-cPromptNewLineTwo + cPromptTab + "Field:" + cPromptTab + cPromptTab + EditField +
-cPromptNewLineOne + cPromptTab + "Data type/action: " + cPromptTab + DataType +
-cPromptNewLineOne + cPromptTab +
-@If( DataType = ("Implode":"Explode" ) ; "Separator: " + cPromptTab + Separator ;
-DataType = ("Text Left":"Text Left Back":"Text Right":"Text Right Back" ) ; "Search string: " + cPromptTab + ExtractValue ;
-DataType = ("Replace Substring":"Replace" ) ; "Search string: " + cPromptTab + FromRawValue + cPromptNewLineOne + cPromptTab + "Replace string: " + cPromptTab + RawValue ;
-DataType = cNoPromptList;
-"" ;
-"Value: " + cPromptTab + cPromptTab + @Text( RawValue ) ) +
-cPromptNewLineTwo + "Would you like to continue?" );
-@If( cEnableConfirmation ;
-@Do(
-@StatusBar( @Explode( tmpPrompt ; cPromptNewLineOne ; @True ) );
-@If( @Prompt( [YesNo]; EditFieldPromptTitle ;
-tmpPrompt );
-"" ; @Return ( "" ) ) );
-"" );
-
-REM {Loop through selected docs taking each NoteIDList out of the list as it is processed};
-DocUpdateCount := 0;
-DocNavigationCount := 0;
-@While( DocUpdateCount &lt; @Elements( NoteIDList ) ;
-
-@If( @TextToNumber( @Text( @DocumentUniqueID ) ) != 0 ;
-@Do(
-NoteIDList := @Replace( NoteIDList ; @NoteID ; "" ) ;
-NotNoteIDList := NotNoteIDList : @NoteID;
-@For( ef := 1; ef &lt;= @Elements( EditField ); ef := ef + 1;
-formulaResult := @Eval( DataTypeAction );
-REMark := " **REM** The values entered above will be applied to all selected doc. If data conversion doesn't work then don't set field.";
-@If( @IsError( formulaResult );
-@Do(
-tmpPrompt := "Error with NoteID of " + @NoteID + ". Continue?" + cPromptTab +
-cPromptNewLineOne + cPromptTab + "Error: " + cPromptTab + cPromptTab + @Text( FormulaResult ) +
-cPromptNewLineOne + cPromptTab + "Formula: " + cPromptTab + cPromptTab + DataTypeAction +
-cPromptNewLineOne + cPromptTab + @If( @Contains( DataTypeAction ; "EditField[ef]" ) ; "EditField[ef]:" ; "Field:" + cPromptTab ) + cPromptTab + EditField[ef] +
-cPromptNewLineOne + cPromptTab + "Data type/action: " + cPromptTab + DataType +
-cPromptNewLineOne + cPromptTab +
-@If( DataType = ("Replace Substring":"Replace" ) ; "FromRawValue: " + cPromptTab + @Text( FromRawValue )+ cPromptNewLineOne + cPromptTab + "RawValue: " + cPromptTab + @Text( RawValue ) ;
-DataType = cNoPromptList;
-"" ;
-"RawValue: " + cPromptTab + @Text( RawValue ) );
-@StatusBar( @Explode( tmpPrompt ; cPromptNewLineOne ; @True ) );
-@If( @Prompt( [YesNo] ;"Error - " + EditFieldPromptTitle ; tmpPrompt ) ;
-ErrorNoteIDList := ErrorNoteIDList+ cArraySeparator + @Text( @NoteID );
-@Return( @If( @Eval( cErrorCheckCode ) != "" ;
-@StatusBar( @Explode( @Eval( cErrorInformation ) ; cPromptNewLineOne ; @True ) ):
-@Prompt( [Ok] ; "Unable to Update - " + EditFieldPromptTitle ; @Eval( cErrorInformation ) );
-"" ) ) ) );
-@SetField( EditField[ef] ; formulaResult )
-)
-);
-@If( DocNavigationCount &gt; cMaxUpdatedDocuments ;
-NoteIDList := "";
-@Do(
-DocUpdateCount := DocUpdateCount + 1;
-@Command([NavNextSelected]);
-@UpdateFormulaContext;
-REMark := " **REM** If we haven't processed all docs yet but the current doc is not in the NoteIDList list, keep looping ... if cnt exceeds MaxUpdatedDocuments assume infinite loop and stop ";
-@If( DocUpdateCount &lt; @Elements( NoteIDList ) &amp; ( !@Member( @NoteID ; NoteIDList ) ) &amp; ( !@Member( @NoteID ; NotNoteIDList) );
-@While( (! @Member( @NoteID ; NoteIDList ) &amp; DocNavigationCount &lt; cMaxUpdatedDocuments );
-@Command([NavNextSelected]);
-@UpdateFormulaContext;
-DocNavigationCount := DocNavigationCount + 1);
-"")
-)
-)
-);
-@Do( @Command([NavNextSelected]);
-@UpdateFormulaContext )
-)
-);
-
-@If( @Implode( @Unique( @Explode( NoteIDList : ErrorNoteIDList ; cArraySeparator ; @False ) ) ) != "" ;
-@StatusBar( @Explode( @Eval( cErrorInformation ) ; cPromptNewLineOne ; @True ) ):
-@Prompt( [Ok] ; "Unable to Update - " + EditFieldPromptTitle ; @Eval( cErrorInformation ) );
-"" );
-
-@StatusBar( "Navigated through " + @Text( DocUpdateCount + DocNavigationCount ) + " documents." );
-@StatusBar( "Performed '" + DataType + "' for '" + @Implode( EditField ; ", " ) + "' field" + @If( @Elements( EditField ) &gt; 1; "s " ; " " ) + "on " + @Text( DocUpdateCount ) + " document" + @If( DocUpdateCount &gt; 1 ; "s" ; "" ) + "." )</formula></code><code
- event='hidewhen'><formula>@IsNotMember("[DatabaseAdmin]";@UserRoles)</formula></code></action></actionbar>
-<column hidedetailrows='false' itemname='who' width='10' resizable='true'
- separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
- title='who'><font size='9pt' style='bold'/></columnheader></column>
-<column hidedetailrows='false' itemname='quantity' width='10' resizable='true'
- separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
- title='quantity'><font size='9pt' style='bold'/></columnheader></column>
-<column hidedetailrows='false' itemname='reasons' width='10' resizable='true'
- separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
- title='reasons'><font size='9pt' style='bold'/></columnheader></column>
-<column hidedetailrows='false' itemname='id' width='10' resizable='true' separatemultiplevalues='false'
- sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
- title='id'><font size='9pt' style='bold'/></columnheader><code event='value'><formula
->@Text(@DocumentUniqueID)</formula></code></column>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.4'
+ replicaid='86257FAE000D9DD0'>
+<noteinfo noteid='19a' unid='91B10776049C47FF86257FAE000D9FFD' sequence='3'>
+<created><datetime dst='true'>20160508T212849,25-05</datetime></created>
+<modified><datetime dst='true'>20160508T213050,98-05</datetime></modified>
+<revised><datetime dst='true'>20160508T213050,97-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20160508T213050,97-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20160508T212849,50-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Doctor Notes/O=psclistens</name></updatedby>
+<wassignedby><name>CN=Doctor Notes/O=psclistens</name></wassignedby>
+<item name='$FormulaClass' sign='true'><text>1</text></item>
+<item name='$TITLE' sign='true'><text>debt</text></item>
+<item name='$Index' sign='true'><text/></item>
+<item name='$Formula' summary='true' sign='true'><formula compiled='true'>
+eAACAA4AAgBpZJAAVgEDAAUANgAxAAYAAwAIAAcAAgAJAAQAd2hvcXVhbnRpdHlyZWFzb25zaWQk
+Q29uZmxpY3QkUkVGAAQABAAAACAABQAEAEZvcm0BAAgAYmVlckRlYnQKAgQABAADAAcADgAIAAlM
+MVM0UzVT
+</formula></item>
+<item name='$Collation' summary='true'>
+<rawitemdata type='2'>
+BgAAAABE
+</rawitemdata></item>
+<item name='$ViewFormat' summary='true' sign='true'>
+<rawitemdata type='5'>
+AQAEAAAACAAAAFZDAAADAAMAAAAAAFAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAgACAAAAAAAUAAB
+AAAKAAAAAAAAAAAAAgIAAABWQwAABwAHAAAAAABQAAEAAAoAAAAAAAAAAAACAgAAAFZDAAACAAIA
+HAAAAFAAAQAACgAAAAAAAAAAAAICAAAAd2hvd2hvcXVhbnRpdHlxdWFudGl0eXJlYXNvbnNyZWFz
+b25zaWRpZBwAAgAOAAIAaWSQAFYBAwAHAAwABQAJMFMwRQAmAAEAAAABAQAJAQAACgEBAAoAAAEA
+rSsBAAEAAQAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAA
+AAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAV0MBAQAJ
+AAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAA
+AAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAAAABCAAAAAAABAP///wAFAP///wABAAAAAAAAAAAA
+AAAAAAEA////AAEA////AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAIAAAAAAABAA==
+</rawitemdata></item>
+<item name='$Comment' sign='true'><text/></item>
+<item name='$Flags'><text>PY</text></item>
+<item name='$WebFlags'><text>A</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
 <item name='$SelQuery' sign='true'>
 <rawitemdata type='f'>
 gQYAAAAAif8UAAAAAAABAAgAYmVlckRlYnQ=
-</rawitemdata></item></view>
+</rawitemdata></item>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+vRw/AAAAAQABAAAAAQAAAAAAAAAAAAAACAAAAHn/bAABAPDw8AABAAAAAAAJAAAAAAABAPDw8AAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAwAAAAAAAAAAAAA
+AAAAAAAAAAkAAAAAAAAAAAAAAAAAAAC+/2pkAAABAAAAHwEAEAwALAAAAAAATWFnaWMgQnV0dG9u
+HGQKAAQABwA0AC4ARWRpdCBEb2N1bWVudCBGaWVsZHMgNi4wLjAgYnkgQ2hhZCBTY2hlbGZob3V0
+LgcACgADAAkxUwAHAFAASQBWaXNpdCBodHRwOi8vd3d3LmNoYWRzbWlsZXkuY29tL0VkaXREb2N1
+bWVudEZpZWxkcyBmb3IgdGhlIGxhdGVzdCB1cGRhdGVzAAcADAAFAAkwUjFTAAcAGgATAENoYW5n
+YWJsZSBjb25zdGFudHMABwAMAAYACTBSUjFTAQAeABMAY0VuYWJsZUNvbmZpcm1hdGlvbgArAAMA
+BwAOAAcACTBSMVMyUwABACYAEwBjRmllbGRIaXN0b3J5VmFsdWVzAAAAAAAAAAAAJEADAAcADgAH
+AAkwUjFTMlMAAQAyABMAY1N0YW5kYXJkU2VwYXJhdG9ycwABAAEAOgABAAEAOwAfAgEAAQAgAB8C
+AwAHABYADwAJMFIxUzJTM1M0UzVTNlMAAQAkAAwAY1Byb21wdFRpdGxlnAABAAMAIC0gACICnQAi
+AgMABwAWAA8ACTBSMVMyUzNTNFM1UzZTAAcAHAAVAFVuY2hhbmdhYmxlIGNvbnN0YW50cwAHAAwA
+BgAJMFJSMVMBACgADABjUHJvZmlsZU5hbWUBABAAQ2hhZFNtaWxleSBUb29scwMABwAOAAcACTBS
+MVMyUwABACYADgBjRWRpdExhc3RGaWVsZAEADABlZGZMYXN0RmllbGQDAAcADgAHAAkwUjFTMlMA
+AQA2ABYAY0VkaXRMYXN0RmllbGREYXRhVHlwZQEAFABlZGZMYXN0RmllbGREYXRhVHlwZQMABwAO
+AAcACTBSMVMyUwABAEIAGwBjRWRpdExhc3RGaWVsZERhdGFUeXBlVmFsdWUAAQAZAGVkZkxhc3RG
+aWVsZERhdGFUeXBlVmFsdWUAAwAHAA4ABwAJMFIxUzJTAAEAIgASAGNFZGl0TGFzdFNlcGFyYXRv
+cgEAAwAlfiUAAwAHAA4ABwAJMFIxUzJTAAEAIgATAGNWYWx1ZUxpc3RTZXBhcmF0b3IAAQABAF4A
+AwAHAA4ABwAJMFIxUzJTAAEAJgAWAGNGcm9tUmF3VmFsdWVTZXBhcmF0b3IBAAMAJUAlAAMABwAO
+AAcACTBSMVMyUwABACIAEQBjU2VtaWNvbG9uUmVwbGFjZQABAAQAI1NDIwMABwAOAAcACTBSMVMy
+UwABACwAGQBjTWF4U2VhcmNoRm9yU2VsZWN0ZWREb2NzAAAAAAAAAACQtUADAAcADgAHAAkwUjFT
+MlMAAQAmABQAY01heFVwZGF0ZWREb2N1bWVudHMAAAAAAAAAQI9AAwAHAA4ABwAJMFIxUzJTAAEA
+HgAPAGNBcnJheVNlcGFyYXRvcgABAAEAOwADAAcADgAHAAkwUjFTMlMAAQAiABAAY05vdGVFbnRy
+eUxlbmd0aAAAAAAAAAAAJkADAAcADgAHAAkwUjFTMlMAAQAmABEAY1Byb21wdE5ld0xpbmVPbmUA
+AAAAAAAAAAAqQIcBAwAHAA4ABwAJMFIxUzJTAAEASAARAGNQcm9tcHROZXdMaW5lVHdvAAUAEQBj
+UHJvbXB0TmV3TGluZU9uZQAFABEAY1Byb21wdE5ld0xpbmVPbmUAIgIDAAcAEgALAAkwUjFTMlMz
+UzRTAAEAHgAKAGNQcm9tcHRUYWIAAAAAAAAAACJAhwEDAAcADgAHAAkwUjFTMlMAAQAmAA8AY0Nh
+dGVnb3J5Tm90ZUlEAAEACgBOVDAwMDAwMDAwAwAHAA4ABwAJMFIxUzJTAAEAYAAQAGNUZXh0RXh0
+cmFjdExpc3QBAAkAVGV4dCBMZWZ0AAEADgBUZXh0IExlZnQgQmFjax8CAQAKAFRleHQgUmlnaHQf
+AgEADwBUZXh0IFJpZ2h0IEJhY2sAHwIDAAcADgAHAAkwUjFTMlMAAQBsAQ0AY05vUHJvbXB0TGlz
+dAAFABAAY1RleHRFeHRyYWN0TGlzdAEADABSZW1vdmUgRmllbGQfAgEABgBVbmlxdWUfAgEADgBT
+b3J0IEFzY2VuZGluZx8CAQAPAFNvcnQgRGVzY2VuZGluZwAfAgEABwBJbXBsb2RlAB8CAQAHAEV4
+cGxvZGUAHwIBABAAUHJvcGVyIENhc2UgVGV4dB8CAQAcAFByb3BlciBDYXNlIFRleHQgTXVsdGkg
+VmFsdWUfAgEADwBMb3dlciBDYXNlIFRleHQAHwIBABsATG93ZXIgQ2FzZSBUZXh0IE11bHRpIFZh
+bHVlAB8CAQAPAFVwcGVyIENhc2UgVGV4dAAfAgEAGwBVcHBlciBDYXNlIFRleHQgTXVsdGkgVmFs
+dWUAHwIBABAAUGFzc3dvcmQgQ29udmVydB8CAQAEAFRyaW0fAgEAEABUcmltIHRoZW4gVW5pcXVl
+HwIDAAcADgAHAAkwUjFTMlMAAQByAA8AY0Vycm9yQ2hlY2tDb2RlAAEAVgBASW1wbG9kZSggQFVu
+aXF1ZSggQEV4cGxvZGUoIE5vdGVJRExpc3QgOiBFcnJvck5vdGVJRCA7IGNBcnJheVNlcGFyYXRv
+ciA7IEBGYWxzZSApICkgKQMABwAOAAcACTBSMVMyUwABABABEQBjRXJyb3JJbmZvcm1hdGlvbgAB
+APEAIkVycm9yIGRvY3VtZW50czogIiArIEBJbXBsb2RlKCBAVW5pcXVlKCBARXhwbG9kZSggRXJy
+b3JOb3RlSURMaXN0IDsgY0FycmF5U2VwYXJhdG9yIDsgQEZhbHNlICkgKSA7ICIsICIgKSArIGNQ
+cm9tcHROZXdMaW5lT25lICsgIk5vdCB1cGRhdGVkIGRvY3VtZW50czogIiArIEBJbXBsb2RlKCBA
+VW5pcXVlKCBARXhwbG9kZSggRXJyb3JOb3RlSURMaXN0IDsgY0FycmF5U2VwYXJhdG9yIDsgQEZh
+bHNlICkgKSA7ICIsICIgKQADAAcADgAHAAkwUjFTMlMABwAkAB4ARGF0YSB0eXBlc3xARnVuY3Rp
+b24gZXhlY3V0aW9uBwAOAAcACTBSUlIxUwABABwMDgBEYXRhVHlwZXNDb21ibwEAIgBJbnRlZ2Vy
+fEBUZXh0VG9OdW1iZXIoIFJhd1ZhbHVlICkkAQBMAEludGVnZXIgTXVsdGkgVmFsdWV8QFRleHRU
+b051bWJlciggQEV4cGxvZGUoIFJhd1ZhbHVlIDsgU2VwYXJhdG9yOyBAVHJ1ZSkgKSQiAgEAGQBE
+YXRlfEBUb1RpbWUoIFJhd1ZhbHVlICkkACICAQBDAERhdGUgTXVsdGkgVmFsdWV8QFRvVGltZSgg
+QEV4cGxvZGUoIFJhd1ZhbHVlIDsgU2VwYXJhdG9yOyBAVHJ1ZSkgKSQAIgIBABcAVGV4dHxAVGV4
+dCggUmF3VmFsdWUgKSQAIgIBAEEAVGV4dCBNdWx0aSBWYWx1ZXxAVGV4dCggQEV4cGxvZGUoIFJh
+d1ZhbHVlIDsgU2VwYXJhdG9yOyBAVHJ1ZSkgKSQAIgIBAEYAVGV4dCBMZWZ0fEBMZWZ0KCBAVGV4
+dCggQEdldEZpZWxkKCBFZGl0RmllbGRbZWZdICkgKSA7IEV4dHJhY3RWYWx1ZSApJCICAQBPAFRl
+eHQgTGVmdCBCYWNrfEBMZWZ0QmFjayggQFRleHQoIEBHZXRGaWVsZCggRWRpdEZpZWxkW2VmXSAp
+ICkgOyBFeHRyYWN0VmFsdWUgKSQAIgIBAEgAVGV4dCBSaWdodHxAUmlnaHQoIEBUZXh0KCBAR2V0
+RmllbGQoIEVkaXRGaWVsZFtlZl0gKSApIDsgRXh0cmFjdFZhbHVlICkkIgIBAFEAVGV4dCBSaWdo
+dCBCYWNrfEBSaWdodEJhY2soIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRGaWVsZFtlZl0gKSApIDsg
+RXh0cmFjdFZhbHVlICkkACICAQAyAFRyaW18QFRyaW0oIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRG
+aWVsZFtlZl0gKSApICkkIgIBAEgAVHJpbSB0aGVuIFVuaXF1ZXxAVW5pcXVlKEBUcmltKCBAVGV4
+dCggQEdldEZpZWxkKCBFZGl0RmllbGRbZWZdICkgKSApICkkIgIBAA4ATmFtZXxSYXdWYWx1ZSQi
+AgEAGgBOYW1lIE11bHRpIFZhbHVlfFJhd1ZhbHVlJCICAQAkAENvbW1vbiBOYW1lfEBOYW1lKCBb
+Q05dOyBSYXdWYWx1ZSApJCICAQBJAENvbW1vbiBOYW1lIE11bHRpIFZhbHVlfEBOYW1lKCBbQ05d
+OyBARXhwbG9kZSggUmF3VmFsdWUgOyAiOiI7IEBUcnVlICkgKSQAIgIBAE4AVXBwZXIgQ2FzZSBU
+ZXh0fEBVcHBlckNhc2UoIEBJbXBsb2RlKCBAVGV4dCggQEdldEZpZWxkKCBFZGl0RmllbGRbZWZd
+ICkgKSApICkkIgIBAE4ATG93ZXIgQ2FzZSBUZXh0fEBMb3dlckNhc2UoIEBJbXBsb2RlKCBAVGV4
+dCggQEdldEZpZWxkKCBFZGl0RmllbGRbZWZdICkgKSApICkkIgIBAFAAUHJvcGVyIENhc2UgVGV4
+dHxAUHJvcGVyQ2FzZSggQEltcGxvZGUoIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRGaWVsZFtlZl0g
+KSApICkgKSQiAgEAbABVcHBlciBDYXNlIFRleHQgTXVsdGkgVmFsdWV8QFVwcGVyQ2FzZSggQEV4
+cGxvZGUoIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRGaWVsZFtlZl0gKSApIDsgU2VwYXJhdG9yOyBA
+VHJ1ZSApKSQiAgEAbABMb3dlciBDYXNlIFRleHQgTXVsdGkgVmFsdWV8QExvd2VyQ2FzZSggQEV4
+cGxvZGUoIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRGaWVsZFtlZl0gKSApIDsgU2VwYXJhdG9yOyBA
+VHJ1ZSkgKSQiAgEAbgBQcm9wZXIgQ2FzZSBUZXh0IE11bHRpIFZhbHVlfEBQcm9wZXJDYXNlKCBA
+RXhwbG9kZSggQFRleHQoIEBHZXRGaWVsZCggRWRpdEZpZWxkW2VmXSApICkgOyBTZXBhcmF0b3I7
+IEBUcnVlKSApJCICAQBbAFJlcGxhY2UgU3Vic3RyaW5nfEBSZXBsYWNlU3Vic3RyaW5nKCBAR2V0
+RmllbGQoIEVkaXRGaWVsZFtlZl0gKTsgRnJvbVJhd1ZhbHVlIDsgUmF3VmFsdWUgKSQAIgIBAGkA
+UmVwbGFjZXxARXhwbG9kZSggQFJlcGxhY2UoIEBHZXRGaWVsZCggRWRpdEZpZWxkW2VmXSApIDsg
+RnJvbVJhd1ZhbHVlIDsgUmF3VmFsdWUgKSA7IFNlcGFyYXRvciA7IEBUcnVlICkkACICAQBEAElt
+cGxvZGV8QEltcGxvZGUoIEBUZXh0KCBAR2V0RmllbGQoIEVkaXRGaWVsZFtlZl0gKSApIDsgU2Vw
+YXJhdG9yICkkIgIBAEsARXhwbG9kZXxARXhwbG9kZSggQFRleHQoIEBHZXRGaWVsZCggRWRpdEZp
+ZWxkW2VmXSApICkgOyBTZXBhcmF0b3I7IEBUcnVlICkkACICAQAaAEZvcm11bGF8QEV2YWwoIFJh
+d1ZhbHVlICkkIgIBAC8AQWJicmV2aWF0ZSBOYW1lfEBOYW1lKFtBYmJyZXZpYXRlXTsgUmF3VmFs
+dWUgKSQAIgIBAFsAQWJicmV2aWF0ZSBOYW1lIE11bHRpIFZhbHVlfEBOYW1lKCBbQWJicmV2aWF0
+ZV07IEBFeHBsb2RlKCBSYXdWYWx1ZSA7IFNlcGFyYXRvcjsgQFRydWUgKSApJAAiAgEAIwBQYXNz
+d29yZCBTZXR8QFBhc3N3b3JkKCBSYXdWYWx1ZSApJAAiAgEAOQBQYXNzd29yZCBDb252ZXJ0fEBQ
+YXNzd29yZCggQEdldEZpZWxkKCBFZGl0RmllbGRbZWZdICkgKSQAIgIBABoAUmVtb3ZlIEZpZWxk
+fEBEZWxldGVGaWVsZCQiAgEAKgBVbmlxdWV8QFVuaXF1ZShAR2V0RmllbGQoIEVkaXRGaWVsZFtl
+Zl0pKSQiAgEAFAArIEFwcGVuZCBWYWx1ZXN8QElmKCICAQApACBAR2V0RmllbGQoRWRpdEZpZWxk
+W2VmXSkgPSAiIjsgUmF3VmFsdWU7ACICAQAkACBAQ29udGFpbnMoRGVmYXVsdERhdGFUeXBlOyAi
+RGF0ZSIpOyICAQAnACBASWYoIEBJc0Vycm9yKCBAVG9UaW1lKCBSYXdWYWx1ZSApICkgOwAiAgEA
+BQAgIiIgOwAiAgEAbAAgQFNldEZpZWxkKCBFZGl0RmllbGRbZWZdIDsgQEdldEZpZWxkKEVkaXRG
+aWVsZFtlZl0pIDogQFRleHRUb1RpbWUoIEBFeHBsb2RlKCBSYXdWYWx1ZSA7IFNlcGFyYXRvciAp
+ICkgKSApIDsiAgEAKAAgQENvbnRhaW5zKERlZmF1bHREYXRhVHlwZTsgIkludGVnZXIiICk7IgIB
+AEUAIEBJZiggQElzRXJyb3IoIEBUZXh0VG9OdW1iZXIoIEBFeHBsb2RlKCBSYXdWYWx1ZSA7IFNl
+cGFyYXRvciApICkgKSA7ACICAQAFACAiIiA7ACICAQBuACBAU2V0RmllbGQoIEVkaXRGaWVsZFtl
+Zl0gOyBAR2V0RmllbGQoRWRpdEZpZWxkW2VmXSkgOiBAVGV4dFRvTnVtYmVyKCBARXhwbG9kZSgg
+UmF3VmFsdWUgOyBTZXBhcmF0b3IgKSApICkgKSA7IgIBAFwAIEBTZXRGaWVsZCggRWRpdEZpZWxk
+W2VmXSA7IEBHZXRGaWVsZChFZGl0RmllbGRbZWZdKSA6IEBFeHBsb2RlKCBSYXdWYWx1ZSA7IFNl
+cGFyYXRvciApICkgKSQiAgEAPgBTb3J0IEFzY2VuZGluZ3xAU29ydChAR2V0RmllbGQoRWRpdEZp
+ZWxkW2VmXSkgOyBbQXNjZW5kaW5nXSApJCICAQA9AFNvcnQgRGVzY2VuZGluZ3xAU29ydChAR2V0
+RmllbGQoRWRpdEZpZWxkW2VmXSk7IFtEZXNjZW5kaW5nXSkAIgIBAAEAJACGAgMABwC8ALUACTBS
+MVMyUzRSNlI4UjEwUjEyUjE0UjE2UjE4UjIwUjIyUjI0UjI2UjI4UjMwUjMyUjM0UjM2UjM4UjQw
+UjQyUjQ0UjQ2UjQ4UjUwUjUyUjU0UjU2UjU4UjYwUjYyUjY0UjY2UjY4UjcwUjcxUzcyUjczUzc0
+Ujc1Uzc2Ujc3Uzc4Ujc5UzgwUjgxUzgyUjgzUzg0Ujg1Uzg2Ujg3Uzg4Ujg5UzkwUjkyUjk0Ujk1
+Uzk2Uzk3UwABADYACQBEYXRhVHlwZXMABQAOAERhdGFUeXBlc0NvbWJvAQABAHwAAAAAAAAAAADw
+P20DAwAHABoAFAAJMFJSMVMyUzRTNVM2UzdTOFM5UwEAPAAPAERhdGFUeXBlc0FjdGlvbgAFAA4A
+RGF0YVR5cGVzQ29tYm8BAAEAfAAAAAAAAAAAAABAbQMDAAcAGgATAAkwUjFTMlM0UzVTNlM3UzhT
+OVMABwA+ADcAR2V0IGEgbGlzdGluZyBvZiBhbGwgdGhlIGZpZWxkcyBvbiB0aGUgY3VycmVudCBk
+b2N1bWVudAAHAAwABgAJMFJSMVMBABIABABMaXN06AD7ATwBAwAHABIACwAJMFIxUzJTNFM1UwAH
+ADIAKwBMb29rIGZvciBsYXN0IGZpZWxkIG1vZGlmaWVkIGluIFByb2ZpbGUgRG9jAAcADAAGAAkw
+UlIxUwEAUAAJAEZpZWxkTGlzdAAFAAwAY1Byb2ZpbGVOYW1lBQAOAGNFZGl0TGFzdEZpZWxk9AD3
+AwUADwBjQXJyYXlTZXBhcmF0b3IAKwCGAwMABwAwACkACTBSMVMyUzRTNlM3UzhTOVMxMFMxMVMx
+MlMxM1MxNFMxNVMxNlMxN1MABwBSAEsAR2V0IHRoZSBsaXN0IG9mIGZvcm1zIGFuZCBmaWVsZCB0
+aGF0IHdhcyB1cGRhdGVkIHVzaW5nIEVkaXQgRG9jdW1lbnQgRmllbGRzAAcADAAGAAkwUlIxUwEA
+RgAOAEZpZWxkTGlzdEZvcm1zBQAJAEZpZWxkTGlzdAAFABIAY0VkaXRMYXN0U2VwYXJhdG9yAAAA
+AAAAAADwP20DAwAHABoAEwAJMFIxUzJTNFM1UzZTN1M4UzlTAAEARgAOAEZpZWxkTGlzdEZpZWxk
+BQAJAEZpZWxkTGlzdAAFABIAY0VkaXRMYXN0U2VwYXJhdG9yAAAAAAAAAAAAQG0DAwAHABoAEwAJ
+MFIxUzJTNFM1UzZTN1M4UzlTAAEANgASAEZpZWxkTGlzdExhc3RJbmRleAUABABGb3JtBQAOAEZp
+ZWxkTGlzdEZvcm1zdgIDAAcAFAANAAkwUjFTMlM0UzZTN1MABwB0AG4ASWYgdGhlIEZpZWxkTGlz
+dExhc3RJbmRleCBpcyBncmVhdGVyIHRoYW4gemVybyB0aGVuIHNldCB0aGUgbGFzdCBmaWVsZCB0
+byB0aGUgd2hhdCB3YXMgaW4gdGhlIHByb2ZpbGUgZG9jdW1lbnQHAAwABQAJMFIxUwAIANIABQAS
+AEZpZWxkTGlzdExhc3RJbmRleAAAAAAAAAAAAAAPAq8AqACMAAUACQBMYXN0RmllbGQABQAOAEZp
+ZWxkTGlzdEZpZWxkBQASAEZpZWxkTGlzdExhc3RJbmRleCACCQIFAAkARmllbGRMaXN0AAUACQBG
+aWVsZExpc3QABQAJAEZpZWxkTGlzdAAFABIARmllbGRMaXN0TGFzdEluZGV4IAIBAAAAhAMJArMC
+rgAcAAUACQBMYXN0RmllbGQAAQAAAAkCrgAEALUDAwAHAEwARQAJMFIyUzNTNFM2UjhTOVMxMFMx
+MlMxM1MxNVIxNlMxN1MxOVMyMFMyMVMyM1MyNFMyNVMyNlMyN1MyOFMzMFIzMVMzM1MABwBoAGIA
+UHJvbXB0IGZvciB3aGljaCBmaWVsZCBuZWVkcyB0byBiZSB1cGRhdGVkLiBMb29wIHVudGlsIGEg
+ZmllbGQgaXMgc2VsZWN0ZWQgb3IgJ0NhbmNlbCcgaXMgc2VsZWN0ZWQHAAwABgAJMFJSMVMIALgA
+BQAJAEVkaXRGaWVsZAACABIAAAAAAAAABQAMAGNQcm9tcHRUaXRsZQEAPwBTZWxlY3QgdGhlIGZp
+ZWxkIHlvdSB3aXNoIHRvIGFsdGVyIG9yIGVudGVyIGEgbmV3IGZpZWxkIHRvIGFkZDoABQAJAExh
+c3RGaWVsZAAFAAQATGlzdAUACQBMYXN0RmllbGQAHwKrAV4BsAUJAgUACQBFZGl0RmllbGQAAQAA
+AAoC+wJHAQMABwBIAEEACTBSMlIzUzRTNlM3UzhTOVMxMFMxMVMxMlMxM1MxNFMxNlMxOFMxOVMy
+MFMyMVMyMlMyM1MyNVIyNlMyN1MyOFMAAQBWABQARWRpdEZpZWxkUHJvbXB0VGl0bGUBAAgAQ2hh
+bmdlICcFAAkARWRpdEZpZWxkACICAQAFACcgaW4gACICBQAMAGNQcm9tcHRUaXRsZSICAwAHABoA
+EwAJMFIxUzJTM1M0UzVTNlM3UzhTAAcAhAB+AFRoaXMgd2lsbCBhbGxvdyB0aGUgcmV0cmlldmFs
+IG9mIHRoZSBkYXRhIHR5cGUgb2YgdGhlIGZpZWxkIHRoYXQgd2FzIGxhc3Qgc2VsZWN0ZWQuIERh
+dGEgaXMgc3RvcmVkIGxpa2UgRm9ybStGaWVsZCV+JURhdGFUeXBlLgcADAAGAAkwUlIxUwEAXAAN
+AEZvcm1GaWVsZExpc3QABQAMAGNQcm9maWxlTmFtZQUAFgBjRWRpdExhc3RGaWVsZERhdGFUeXBl
+9AD3AwUADwBjQXJyYXlTZXBhcmF0b3IAKwCGAwMABwAwACkACTBSMVMyUzRTNlM3UzhTOVMxMFMx
+MVMxMlMxM1MxNFMxNVMxNlMxN1MAAQBSABYARm9ybUZpZWxkTGlzdEZvcm1GaWVsZAUADQBGb3Jt
+RmllbGRMaXN0AAUAEgBjRWRpdExhc3RTZXBhcmF0b3IAAAAAAAAAAPA/bQMDAAcAGgATAAkwUjFT
+MlM0UzVTNlM3UzhTOVMAAQBSABUARm9ybUZpZWxkTGlzdERhdGFUeXBlAAUADQBGb3JtRmllbGRM
+aXN0AAUAEgBjRWRpdExhc3RTZXBhcmF0b3IAAAAAAAAAAABAbQMDAAcAGgATAAkwUjFTMlM0UzVT
+NlM3UzhTOVMAAQByABgARm9ybUZpZWxkTGlzdEZvcm11bGFDb2RlBQANAEZvcm1GaWVsZExpc3QA
+BQASAGNFZGl0TGFzdFNlcGFyYXRvcgAAAAAAAAAACEBtAwUAEQBjU2VtaWNvbG9uUmVwbGFjZQAB
+AAEAOwCEAwMABwAsACYACTBSMVMyUzRTNlM3UzhTOVMxMFMxMVMxMlMxM1MxNFMxNVMxNlMBAE4A
+EgBGb3JtRmllbGRMaXN0SW5kZXgFAAQARm9ybQUACQBFZGl0RmllbGQAIgIFABYARm9ybUZpZWxk
+TGlzdEZvcm1GaWVsZHYCAwAHABgAEQAJMFIxUzJTNFM1UzZTOFM5UwAIAEQBBQASAEZvcm1GaWVs
+ZExpc3RJbmRleAAAAAAAAAAAAAAPAq8AGgH4AAUADwBEZWZhdWx0RGF0YVR5cGUABQAVAEZvcm1G
+aWVsZExpc3REYXRhVHlwZQAFABIARm9ybUZpZWxkTGlzdEluZGV4IAIJAgUAGABGb3JtRmllbGRM
+aXN0Rm9ybXVsYUNvZGUFABgARm9ybUZpZWxkTGlzdEZvcm11bGFDb2RlBQASAEZvcm1GaWVsZExp
+c3RJbmRleCACCQIFAA0ARm9ybUZpZWxkTGlzdAAFAA0ARm9ybUZpZWxkTGlzdAAFAA0ARm9ybUZp
+ZWxkTGlzdAAFABIARm9ybUZpZWxkTGlzdEluZGV4IAIBAAAAhAMJArMDrgAiAAUADwBEZWZhdWx0
+RGF0YVR5cGUAAQAAAAkCrgAEALUDAwAHAFoAVAAJMFIyUzNTNFM2UjhTOVMxMFMxMlMxM1MxNVIx
+NlMxN1MxOVMyMFMyMlIyM1MyNFMyNlMyN1MyOFMzMFMzMVMzMlMzM1MzNFMzNVMzN1IzOFM0MFMH
+AGIAWwBJZiB0aGVyZSB3YXMgbm8gZGF0YSB0eXBlIHVzZWQgZm9yIHRoZSBmaWVsZCBvbiB0aGUg
+Zm9ybSB0aGUgdHJ5IHRvIGRldGVybWluZSB0aGUgZGF0YSB0eXBlAAcADAAGAAkwUlIxUwEAigEP
+AERlZmF1bHREYXRhVHlwZQAFAA8ARGVmYXVsdERhdGFUeXBlAAEAAAALAq8AVgEaAAUADwBEZWZh
+dWx0RGF0YVR5cGUArgA8AQUACQBFZGl0RmllbGQA+wEzAVsBrwAeAVwABQAJAEVkaXRGaWVsZAD7
+ATMB+wFRAQAAAAAAAAAA8D8PAq8AMgAeAAEAEwBJbnRlZ2VyIE11bHRpIFZhbHVlAK4AFAABAAcA
+SW50ZWdlcgCuAAQAtQOuAMIABQAJAEVkaXRGaWVsZAD7ATMBXQGvAKoAVAAFAAkARWRpdEZpZWxk
+APsBMwH7AVEBAAAAAAAAAADwPw8CrwAqABoAAQAQAERhdGUgTXVsdCBpVmFsdWWuABAAAQAEAERh
+dGWuAAQAtQOuAFYABQAJAEVkaXRGaWVsZAD7ATMB+wFRAQAAAAAAAAAA8D8PAq8AKgAaAAEAEABU
+ZXh0IE11bHRpIFZhbHVlrgAQAAEABABUZXh0rgAEALUDrgAEALUFrgAEALUDAwAHAMIAuwAJMFIx
+UzJSNFM1UzZTN1M4UjlTMTBSMTJSMTRTMTZTMTdTMThTMTlTMjBSMjJTMjRTMjZTMjdTMjhTMjlT
+MzBTMzFTMzJSMzNTMzRSMzVTMzZTMzdSMzlTNDFTNDJTNDNTNDRTNDVSNDdTNDlTNTFTNTJTNTNT
+NTRTNTVTNTZTNTdSNThTNTlSNjBTNjFTNjJSNjRTNjZTNjhTNjlTNzBTNzFTNzJTNzNTNzRSNzVT
+NzZSNzdTNzhSNzlSAAcATABFAElmIHRoZSBkYXRhIHR5cGUgaXMgYSB0eXBlIG9mIGVycm9yIHRo
+ZW4gc2VsZWN0IHRoZSBkYXRhIHR5cGUgb2YgdGV4dAAHAAwABgAJMFJSMVMBADgADwBEZWZhdWx0
+RGF0YVR5cGUABQAPAERlZmF1bHREYXRhVHlwZQABAAQAVGV4dPsCQwEDAAcAFgAPAAkwUjFTMlM0
+UzVTNlM3UwAHAKoAowBQcm9tcHQgZm9yIHdoaWNoIGRhdGEgdHlwZSB5b3Ugd291bGQgbGlrZSB0
+aGUgZGF0YSB0byBiZS4gVGhpcyBuZWVkcyB0byBiZSBkb25lIGJlZm9yZSB2YWx1ZSBwcm9tcHQg
+dG8gZGV0ZXJtaW5lIGlmIHRoZSBQaWNrbGlzdCBvciBhbnkgcHJvbXB0aW5nIG5lZWRzIHRvIGJl
+IHVzZWQuAAcADAAGAAkwUlIxUwEArAAIAERhdGFUeXBlAgAQAAAAAAAAAAUAFABFZGl0RmllbGRQ
+cm9tcHRUaXRsZQEAOQBQbGVhc2Ugc2VsZWN0IHRoZSBjb3JyZWN0IGRhdGEgdHlwZSBvciBhY3Rp
+b24gZm9yIGZpZWxkOiAABQAJAEVkaXRGaWVsZAAiAgEAAQAuACICBQAPAERlZmF1bHREYXRhVHlw
+ZQAFAAkARGF0YVR5cGVzALAFAwAHACwAJgAJMFIxUzJTNFM1UzZTOFM5UzEwUzExUzEyUzE0UzE1
+UzE2UzE3UwcAYgBbAFRoZSBEYXRhVHlwZUFjdGlvbiB3aWxsIGNvbnRhaW4gdGhlIGZvcm11bGEg
+dGhhdCB3aWxsIGJlIGV4ZWN1dGVkIHRvIHJldHJpZXZlIHRoZSBuZXcgdmFsdWUABwAMAAYACTBS
+UjFTAQBIAA4ARGF0YVR5cGVBY3Rpb24FAA8ARGF0YVR5cGVzQWN0aW9uAAUACABEYXRhVHlwZQUA
+CQBEYXRhVHlwZXMAdgIgAgMABwAaABQACTBSMVMyUzRTNlM3UzhTOVMxMFMHAKAAmQBJZiBmb3Jt
+dWxhIHdhcyB1c2VkIG9uIHRoaXMgZmllbGQgdGhlbiB1c2UgdGhhdCBpbnN0ZWFkIG9mIHRoZSBm
+aWVsZHMgdmFsdWUuIEZvcm1hdCB0aGUgb3JpZ2luYWwgdmFsdWUgYXMgdGV4dCBiZWNhdXNlIHRo
+ZSBAUHJvbXB0IGNvbW1hbmQgcmVxdWlyZXMgdGV4dC4ABwAMAAYACTBSUjFTAQAWAQ0AT3JpZ2lu
+YWxWYWx1ZQAFAAgARGF0YVR5cGUBAAcARm9ybXVsYQAKAgUADwBEZWZhdWx0RGF0YVR5cGUAAQAH
+AEZvcm11bGEACgIcAgUAGABGb3JtRmllbGRMaXN0Rm9ybXVsYUNvZGUBAAAACwIcAq8AnAAiAAUA
+GABGb3JtRmllbGRMaXN0Rm9ybXVsYUNvZGWuAHoABQAPAERlZmF1bHREYXRhVHlwZQAFAAoATXVs
+dGlWYWx1ZUcCrwBMADAABQAJAEVkaXRGaWVsZAD7ATMBVgEFAA8AY0FycmF5U2VwYXJhdG9yAIUC
+rgAcAAUACQBFZGl0RmllbGQA+wEzAVYBrgAEALUDrgAEALUDAwAHAHYAcAAJMFIxUzJTNFM1UzZT
+N1M4UzlTMTBTMTFTMTJTMTNTMTRTMTVTMTZSMTdTMThSMjBTMjJTMjNTMjRTMjVTMjZTMjdSMjlT
+MzFTMzNTMzRTMzVTMzZTMzdTMzhTNDBSNDJTNDRTNDVTNDZTNDdTNDhSBwB8AHUAVGhpcyB3aWxs
+IGFsbG93IHRoZSByZXRyaWV2YWwgb2YgaGlzdG9yeSBvZiB2YWx1ZXMgb2YgdGhlIGZpZWxkLiBE
+YXRhIGlzIHN0b3JlZCBsaWtlIEZvcm0rRmllbGQrRGF0YVR5cGUlfiVWYWx1ZUxpc3QuAAcADAAG
+AAkwUlIxUwEAcAAbAEZvcm1GaWVsZExpc3REYXRhVHlwZVZhbHVlcwAFAAwAY1Byb2ZpbGVOYW1l
+BQAbAGNFZGl0TGFzdEZpZWxkRGF0YVR5cGVWYWx1ZQD0APcDBQAPAGNBcnJheVNlcGFyYXRvcgAr
+AIYDAwAHADAAKQAJMFIxUzJTNFM2UzdTOFM5UzEwUzExUzEyUzEzUzE0UzE1UzE2UzE3UwABAGgA
+HgBGb3JtRmllbGRMaXN0Rm9ybUZpZWxkRGF0YVR5cGUFABsARm9ybUZpZWxkTGlzdERhdGFUeXBl
+VmFsdWVzAAUAEgBjRWRpdExhc3RTZXBhcmF0b3IAAAAAAAAAAPA/bQMDAAcAHAAWAAkwUjFTMlM0
+UzVTNlM3UzhTOVMxMFMBAGIAGABGb3JtRmllbGRMaXN0VmFsdWVzTGlzdHMFABsARm9ybUZpZWxk
+TGlzdERhdGFUeXBlVmFsdWVzAAUAEgBjRWRpdExhc3RTZXBhcmF0b3IAAAAAAAAAAABAbQMDAAcA
+HAAWAAkwUjFTMlM0UzVTNlM3UzhTOVMxMFMBAGYAFABGb3JtRmllbGRMaXN0RFRJbmRleAUABABG
+b3JtBQAJAEVkaXRGaWVsZAAiAgUACABEYXRhVHlwZSICBQAeAEZvcm1GaWVsZExpc3RGb3JtRmll
+bGREYXRhVHlwZXYCAwAHAB4AFwAJMFIxUzJTNFM1UzZTN1M4UzEwUzExUwAIAMgBBQAUAEZvcm1G
+aWVsZExpc3REVEluZGV4AAAAAAAAAAAAAA8CrwCcAXIBBQAXAEZvcm1GaWVsZExpc3RWYWx1ZXNM
+aXN0AAUAGwBGb3JtRmllbGRMaXN0RGF0YVR5cGVWYWx1ZXMABQAUAEZvcm1GaWVsZExpc3REVElu
+ZGV4IAIJAgUAFwBGb3JtRmllbGRMaXN0VmFsdWVzTGlzdAAFABgARm9ybUZpZWxkTGlzdFZhbHVl
+c0xpc3RzBQAUAEZvcm1GaWVsZExpc3REVEluZGV4IAIFABMAY1ZhbHVlTGlzdFNlcGFyYXRvcgAq
+AIYDXgEFABEAY1NlbWljb2xvblJlcGxhY2UAAQABADsAhAMJAgUAGwBGb3JtRmllbGRMaXN0RGF0
+YVR5cGVWYWx1ZXMABQAbAEZvcm1GaWVsZExpc3REYXRhVHlwZVZhbHVlcwAFABsARm9ybUZpZWxk
+TGlzdERhdGFUeXBlVmFsdWVzAAUAFABGb3JtRmllbGRMaXN0RFRJbmRleCACAQAAAIQDCQKzA64A
+KgAFABcARm9ybUZpZWxkTGlzdFZhbHVlc0xpc3QAAQAAAAkCrgAEALUDAwAHAIIAewAJMFIyUzNT
+NFM2UjhTOVMxMFMxMlMxM1MxNVIxNlMxN1MxOVMyMVMyM1MyNVMyNlMyN1MyOFMyOVMzMFMzMVMz
+MlMzM1MzNFMzNlMzN1MzOVI0MFM0MVM0M1M0NFM0NVM0N1M0OFM0OVM1MFM1MVM1MlM1NFI1NVM1
+N1MABwBYAFIAUHJvbXB0IGZvciBhZGRpdGlvbmFsIGZpZWxkcyBhbmQgZGV0ZXJtaW5lIHRoZSBz
+dHJpbmcgdGhhdCB0aGV5IGFyZSBzZWFyY2hpbmcgZm9yLgcADAAGAAkwUlIxUwgA5gEFAAgARGF0
+YVR5cGUBABEAUmVwbGFjZSBTdWJzdHJpbmcAAQAHAFJlcGxhY2UAHwIEAAoCrwCqAWwBBQAJAEVk
+aXRGaWVsZAAFAAkARWRpdEZpZWxkAAIAEwAAAAAAAAAFAAwAY1Byb21wdFRpdGxlAQAuAFNlbGVj
+dCBhbnkgYWRkdGlvbmFsIGZpZWxkcyB5b3Ugd2lzaCB0byBhbHRlcjoFAAkARWRpdEZpZWxkAAUA
+BABMaXN0sAUfAqsBCQIFAAwARnJvbVJhd1ZhbHVlAgASAAAAAAAAAAUAFABFZGl0RmllbGRQcm9t
+cHRUaXRsZQEAPABFbnRlciBvciBzZWxlY3QgdGhlIHRleHQgKGNhc2Ugc2Vuc2l0aXZlKSB0byBz
+ZWFyY2ggZm9yIGluOiAFAAkARWRpdEZpZWxkAAEAAgAsIIUCIgIBAAEALgAiAgEAAAAFABcARm9y
+bUZpZWxkTGlzdFZhbHVlc0xpc3QABQAWAGNGcm9tUmF3VmFsdWVTZXBhcmF0b3IAAAAAAAAAAABA
+bQOrAbAFCQKzAq4APgAFAAkARWRpdEZpZWxkAAUACQBFZGl0RmllbGQACQIFAAwARnJvbVJhd1Zh
+bHVlAQAAAAkCswKuAAQAtQMDAAcAvgC4AAkwUjJTM1M0UzhTOVMxMFIxMlMxM1MxNFMxNlMxN1Mx
+OFMyMFMyMVMyMlMyM1MyNFMyNVMyNlMyN1MyOFMyOVMzMFMzMlIzM1MzNFMzNlMzN1MzOFMzOVM0
+MFM0MVM0MlM0NFM0NVM0NlM0N1M0OFM0OVM1MFM1MVM1MlM1M1M1NVM1N1M1OFM1OVM2MFM2MVM2
+MlM2M1M2NFM2NVM2N1I2OVM3MFM3MVM3M1I3NFM3NVM3NlM3N1IHAFYAUAAgV2l0aCB0aGUgRWRp
+dCBjb21ibyB0aGVyZSB3aWxsIGJlIGEgbGlzdCBvZiBzdGFuZGFyZCBzZXBlcmF0b3JzIHRvIGNo
+b29zZSBmcm9tLgcADAAGAAkwUlIxUwEAagEJAFNlcGFyYXRvcgAFAAgARGF0YVR5cGUBAAcASW1w
+bG9kZQABAAcARXhwbG9kZQAfAgQACgKvACwBEAECABIAAAAAAAAABQAMAGNQcm9tcHRUaXRsZQEA
+FABFbnRlciBvciBzZWxlY3QgdGhlIAUACABEYXRhVHlwZQEABwBJbXBsb2RlAAoCrwAqABQAAQAJ
+AHNlcGFyYXRvcgCuABYAAQAKAHNlcGFyYXRvcnOuAAQAtQMiAgEAAQA6ACICAQAAAAUAFwBGb3Jt
+RmllbGRMaXN0VmFsdWVzTGlzdAABAAAACgKvAFwAHgAFABMAY1N0YW5kYXJkU2VwYXJhdG9ycwCu
+AD4ABQAXAEZvcm1GaWVsZExpc3RWYWx1ZXNMaXN0AAUAEwBjU3RhbmRhcmRTZXBhcmF0b3JzAB8C
+rgAEALUDqwGwBa4AHAAFAA8AY0FycmF5U2VwYXJhdG9yAK4ABAC1AwMABwCIAIIACTBSMVMyUzRT
+NVM2UzEwUzExUzEyUjE0UzE1UzE2UzE3UzE4UzE5UzIwUzIyUzIzUzI0UzI1UzI2UzI3UzI4UzI5
+UzMwUzMxUzMyUzMzUzM0UzM1UzM3UzM5UzQwUzQxUzQyUzQzUzQ0UzQ1UzQ2UzQ3UzQ4UzQ5UzUw
+UzUyUjUzUwcAKAAiAERldGVybWluZSB0aGUgc3RyaW5nIHRvIHNlYXJjaCBmb3IHAAwABgAJMFJS
+MVMBAOQADABFeHRyYWN0VmFsdWUFAAgARGF0YVR5cGUFABAAY1RleHRFeHRyYWN0TGlzdAoCrwCs
+AKAAAgASAAAAAAAAAAUADABjUHJvbXB0VGl0bGUBADMARW50ZXIgb3Igc2VsZWN0IHRoZSBzZWFy
+Y2ggc3RyaW5nIG9yIHN0cmluZyBsZW5ndGg6AAUAFwBGb3JtRmllbGRMaXN0VmFsdWVzTGlzdAAA
+AAAAAAAAAPA/awIFABcARm9ybUZpZWxkTGlzdFZhbHVlc0xpc3QAqwGwBa4ADAABAAAArgAEALUD
+AwAHAE4ARwAJMFIxUzJTNFM1UzZTN1M4UjEwUzExUzEyUzEzUzE0UzE1UzE2UzE4UzE5UzIwUzIx
+UzIyUzIzUzI1UzI2UzI3UzI5UjMwUwAHAF4AWABCYXNlZCBvbiB3aGF0IHR5cGUgb2YgZGF0YSBp
+cyBiZWluZyBlbnRlcmVkIGRpZmZlcmVudCBwcm9tcHRzIHdpbGwgaGFwcGVuIGlmIGFueSBhdCBh
+bGwuBwAMAAYACTBSUjFTAQAcBwgAUmF3VmFsdWUFAAgARGF0YVR5cGUBABAATmFtZSBNdWx0aSBW
+YWx1ZUcCrwDoBhIAAgA4AAAAAAAAAMgBrgDWBgUACABEYXRhVHlwZQEABABOYW1lRwKvALwGHgAC
+ADgAAAAAAAAAAgA5AAAAAAAAAB8CyAGuAJ4GBQAIAERhdGFUeXBlBQANAGNOb1Byb21wdExpc3QA
+BAAKAq8AeAYKAAEAAACuAG4GBQAIAERhdGFUeXBlAQALAE11bHRpIFZhbHVlAEcCrwBMBvwAAgAS
+AAAAAAAAAAUAFABFZGl0RmllbGRQcm9tcHRUaXRsZQEAKwBFbnRlciBvciBzZWxlY3QgdGhlIG5l
+dyBkZXNpcmVkIHZhbHVlIGZvcjogAAUACQBFZGl0RmllbGQAAQACACwghQIiAgEAAQAuACICBQAR
+AGNQcm9tcHROZXdMaW5lVHdvACICAQAgAFNlcGVyYXRlZCB3aXRoIDsgZm9yIGVhY2ggdmFsdWUu
+IgIFAA0AT3JpZ2luYWxWYWx1ZQAFAA0AT3JpZ2luYWxWYWx1ZQAFABcARm9ybUZpZWxkTGlzdFZh
+bHVlc0xpc3QAHwKrAbAFrgBQBQUACABEYXRhVHlwZQEADwArIEFwcGVuZCBWYWx1ZXMARwKvACoF
+0AACABIAAAAAAAAABQAUAEVkaXRGaWVsZFByb21wdFRpdGxlAQAiAEVudGVyIG9yIHNlbGVjdCB2
+YWx1ZXMgdG8gYXBwZW5kOiAFAAkARWRpdEZpZWxkAAEAAgAsIIUCIgIBAAEALgAiAgUAEQBjUHJv
+bXB0TmV3TGluZVR3bwAiAgEAIABTZXBlcmF0ZWQgd2l0aCA7IGZvciBlYWNoIHZhbHVlLiICAQAA
+AAUAFwBGb3JtRmllbGRMaXN0VmFsdWVzTGlzdACrAbAFrgBaBAUACABEYXRhVHlwZQEAEQBSZXBs
+YWNlIFN1YnN0cmluZwABAAcAUmVwbGFjZQAfAgQACgKvACIEvAACABIAAAAAAAAABQAUAEVkaXRG
+aWVsZFByb21wdFRpdGxlAQAtAEVudGVyIG9yIHNlbGVjdCB0aGUgdGV4dCB0byByZXBhbGNlIHdp
+dGggaW46IAAFAAkARWRpdEZpZWxkACICAQABAC4AIgIBAAAABQAXAEZvcm1GaWVsZExpc3RWYWx1
+ZXNMaXN0AAUAFgBjRnJvbVJhd1ZhbHVlU2VwYXJhdG9yAAAAAAAAAADwP20DqwGwBa4AZgMFAAgA
+RGF0YVR5cGUBAAcARm9ybXVsYQAKAq8ASAOQAgUADQBPcmlnaW5hbFZhbHVlAAIAEgAAAAAAAAAF
+ABQARWRpdEZpZWxkUHJvbXB0VGl0bGUBAC0ARW50ZXIgb3Igc2VsZWN0IHRoZSBuZXcgZGVzaXJl
+ZCBmb3JtdWxhIGZvcjogAAUACQBFZGl0RmllbGQAIgIBAAEALgAiAgUADQBPcmlnaW5hbFZhbHVl
+AAUADQBPcmlnaW5hbFZhbHVlAAUAFwBGb3JtRmllbGRMaXN0VmFsdWVzTGlzdAAfAqsBsAUJAgUA
+DwB0ZW1wUmV0dXJuQ2hlY2sABQANAE9yaWdpbmFsVmFsdWUA+wFdAQkCBQAPAHRlbXBSZXR1cm5D
+aGVjawABAAEAMQALAq8ARgE6AQIADQAAAAAAAAABABIASW52YWxpZCBGb3JtdWxhIC0gBQAUAEVk
+aXRGaWVsZFByb21wdFRpdGxlIgIBABkASW52YWxpZCBGb3JtdWxhIGVudGVyZWQ6IAAFABEAY1By
+b21wdE5ld0xpbmVUd28AIgIFAAoAY1Byb21wdFRhYiICAQAHAEVycm9yOiAAIgIFAAoAY1Byb21w
+dFRhYiICBQAKAGNQcm9tcHRUYWIiAgUADwB0ZW1wUmV0dXJuQ2hlY2sAVgEiAgUAEQBjUHJvbXB0
+TmV3TGluZU9uZQAiAgUACgBjUHJvbXB0VGFiIgIBAAkARm9ybXVsYTogACICBQAKAGNQcm9tcHRU
+YWIiAgUACgBjUHJvbXB0VGFiIgIFAA0AT3JpZ2luYWxWYWx1ZQAiArADrgAMAAEAAACuAAQAtQMF
+AA8AdGVtcFJldHVybkNoZWNrAAEAAQAxAAsC+wRHAQUADQBPcmlnaW5hbFZhbHVlALMCrgC4AAIA
+EgAAAAAAAAAFABQARWRpdEZpZWxkUHJvbXB0VGl0bGUBACsARW50ZXIgb3Igc2VsZWN0IHRoZSBu
+ZXcgZGVzaXJlZCB2YWx1ZSBmb3I6IAAFAAkARWRpdEZpZWxkACICAQABAC4AIgIFAA0AT3JpZ2lu
+YWxWYWx1ZQAFAA0AT3JpZ2luYWxWYWx1ZQAFABcARm9ybUZpZWxkTGlzdFZhbHVlc0xpc3QAHwKr
+AbAFrgAEALUPAwAHACwDJQMJMFIxUzJTNFI2UzdTOFM5UzEwUzExUzEzUzE0UzE2UjE4UzE5UzIw
+UzIxUzIyUzIzUzI1UzI2UzI3UzI4UzMwUjMxUzMyUzMzUzM0UzM1UzM2UzM3UzM4UjQwUzQxUzQy
+UzQzUzQ0UzQ1UzQ3UzQ4UzQ5UzUxUzUyUzUzUzU1UzU2UzU3UzU4UzU5UzYwUzYxUzYyUzYzUzY0
+UzY1UzY2UzY3UzY4UzcwUzcxUzcyUzczUzc0Uzc1Uzc2Ujc4Uzc5UzgwUzgxUzgyUzgzUzg1Uzg2
+Uzg3Uzg5UzkwUzkxUzkzUzk0Uzk1Uzk2Uzk3Uzk4Uzk5UzEwMFMxMDFTMTAyUzEwM1MxMDRTMTA1
+UzEwNlMxMDhTMTA5UzExMFMxMTFTMTEyUjExM1MxMTRTMTE4UzExOVMxMjBTMTIyUzEyM1MxMjRT
+MTI1UzEyNlMxMjdTMTI4UzEyOVMxMzBTMTMxUzEzMlMxMzNTMTM0UzEzNlMxMzhTMTM5UzE0MFMx
+NDFTMTQyUzE0M1MxNDRTMTQ1UzE0NlMxNDdSMTQ4UzE0OVMxNTBTMTUxUzE1M1MxNTVSMTU2UzE1
+N1MxNTlTMTYwUzE2MVMxNjJTMTYzUzE2NFMxNjVTMTY2UzE2N1MxNjhTMTY5UzE3MFMxNzFTMTcz
+UzE3NFMxNzVTMTc2UzE3N1MxNzlSMTgwUzE4MVMxODNTMTg0UzE4NlIxODhTMTg5UzE5MFMxOTJT
+MTk0UzE5NVMxOTZTMTk3UzE5OFMxOTlTMjAwUjIwMVMyMDJSMjAzUzIwNFMyMDVTMjA2UzIwN1My
+MDhTMjA5UzIxMFMyMTFTMjEyUzIxNFMyMTVTMjE2UzIxN1IyMThTMjE5UzIyMFMyMjFTMjIyUzIy
+M1MyMjRTMjI1UzIyNlMyMjdTMjI4UzIyOVMyMzBTMjMxUzIzM1IyMzRTMjM1UzIzNlMyMzhSMjM5
+UzI0MVIyNDNTMjQ0UzI0NVMyNDZTMjQ3UzI0OFMyNDlTMjUwUzI1MVMyNTJTMjUzUzI1NFMyNTVT
+MjU3UzI1OFMyNTlTMjYwUzI2MVMyNjJSAAcAIAAaAFN0b3JlIEZpZWxkIGluIFByb2ZpbGUgZG9j
+BwAMAAYACTBSUjFTCAB+AAUADABjUHJvZmlsZU5hbWUFAA4AY0VkaXRMYXN0RmllbGQFAAkARmll
+bGRMaXN0AAUABABGb3JtBQASAGNFZGl0TGFzdFNlcGFyYXRvciICBQAJAEVkaXRGaWVsZAAAAAAA
+AAAAAPA/IAIiAgQAHwJeAasB9AD4BAMABwA8ADYACTBSMlMzUzRTNVM2UzhTMTBTMTFTMTJTMTNT
+MTRTMTVTMTZTMTdTMjFTMjJTMjNTMjVTMjZTBwAuACcAU3RvcmUgRGF0YSBUeXBlIG9mIEZpZWxk
+IGluIFByb2ZpbGUgZG9jAAcADAAGAAkwUlIxUwgAIgEFAAwAY1Byb2ZpbGVOYW1lBQAWAGNFZGl0
+TGFzdEZpZWxkRGF0YVR5cGUFAA0ARm9ybUZpZWxkTGlzdAAFAAQARm9ybQUACQBFZGl0RmllbGQA
+AAAAAAAAAADwPyACIgIFABIAY0VkaXRMYXN0U2VwYXJhdG9yIgIFAAgARGF0YVR5cGUiAgUAEgBj
+RWRpdExhc3RTZXBhcmF0b3IiAgUACABEYXRhVHlwZQEABwBGb3JtdWxhAAoCrwA2ABIABQAIAFJh
+d1ZhbHVlrgAkAAUAGABGb3JtRmllbGRMaXN0Rm9ybXVsYUNvZGWuAAQAtQMBAAEAOwAFABEAY1Nl
+bWljb2xvblJlcGxhY2UAhAMiAgQAHwJeAasB9AD4BAMABwB8AHUACTBSMlMzUzRTNVM2UjhTMTBT
+MTFTMTJTMTNTMTRTMTVTMTlTMjBTMjFTMjJTMjNTMjRTMjVTMjZSMjhSMzBTMzFTMzJTMzNTMzRT
+MzVTMzZTMzdTMzhTMzlSNDBTNDFTNDJTNDNTNDRTNDVTNDZTNDdSNDhTAAcALgAoAFN0b3JlIERh
+dGEgVmFsdWUgb2YgRmllbGQgaW4gUHJvZmlsZSBkb2MHAAwABgAJMFJSMVMIACgCBQAMAGNQcm9m
+aWxlTmFtZQUAGwBjRWRpdExhc3RGaWVsZERhdGFUeXBlVmFsdWUABQAbAEZvcm1GaWVsZExpc3RE
+YXRhVHlwZVZhbHVlcwAFAAQARm9ybQUACQBFZGl0RmllbGQAAAAAAAAAAADwPyACIgIFAAgARGF0
+YVR5cGUiAgUAEgBjRWRpdExhc3RTZXBhcmF0b3IiAgUACABEYXRhVHlwZQEABwBJbXBsb2RlAAEA
+BwBFeHBsb2RlAB8CBAAKAq8A3AAUAAUACQBTZXBhcmF0b3IArgDIAAUACABEYXRhVHlwZQUAEABj
+VGV4dEV4dHJhY3RMaXN0CgKvAKIAFgAFAAwARXh0cmFjdFZhbHVlrgCMAAUACABEYXRhVHlwZQEA
+EQBSZXBsYWNlIFN1YnN0cmluZwABAAcAUmVwbGFjZQAfAgQACgKvAFQAQAAFAAgAUmF3VmFsdWUF
+ABYAY0Zyb21SYXdWYWx1ZVNlcGFyYXRvciICBQAMAEZyb21SYXdWYWx1ZSICrgAUAAUACABSYXdW
+YWx1Za4ABAC1BwUAFwBGb3JtRmllbGRMaXN0VmFsdWVzTGlzdAAfAgEAAQA7AAUAEQBjU2VtaWNv
+bG9uUmVwbGFjZQCEA6sBBQATAGNGaWVsZEhpc3RvcnlWYWx1ZXMAawIFABMAY1ZhbHVlTGlzdFNl
+cGFyYXRvcgCFAiICBAAfAl4BqwH0APgEAwAHANAAyQAJMFIyUzNTNFM1UzZSOFMxMFMxMVMxMlMx
+M1MxNFMxNVMxOVMyMFMyMVMyMlMyM1MyNFIyNlIyOFIzMFIzMlIzNFMzNVMzNlM0MFM0MVM0MlM0
+M1M0NFI0NVM0NlM0N1M0OFM0OVM1MFI1MVM1MlM1M1M1NlM1N1M1OFM1OVM2MFM2MVM2MlM2M1M2
+NFI2NVM2NlM2N1M2OFM2OVI3MFM3MVM3MlM3M1M3NFM3NVI3NlM3OFI3OVM4MFM4MVM4MlM4M1M4
+NFI4NVMABwBoAGEASWYgbXVsdGkgZG9jcyBzZWxlY3RlZCwgb25seSBwcm9jZXNzIHRob3NlIGNo
+ZWNrZWQgLi4uIGFuIHVuY2hlY2tlZCBkb2MgY2Fubm90IGJlIE5hdk5leHRTZWxlY3RlZAAHAAoA
+AwAJMVMACAASAAIAGScAAAAAAADtAQMABwAKAAMACTBSAAgACgD7AFYBAwAHAAoAAwAJMFIABwCA
+AHoAU3RvcmUgYWxsIE5vdGUgSURzIGJlZm9yZSBtYW5pcHVsYXRpb24gaW4gY2FzZSBmaWVsZCBt
+b2RpZmljYXRpb25zIGNhdXNlIGNhdGVnb3JpemVkIHZpZXdzIG9yIHNvcnRlZCBjb2x1bW5zIHRv
+IHJlb3JnYW5pemUHAAwABgAJMFJSMVMBABYACgBOb3RlSURMaXN0fgBWAQMABwASAAsACTBSMVMy
+UzRTNVMAAQAcAA8ARXJyb3JOb3RlSURMaXN0AAEAAAADAAcADgAHAAkwUjFTMlMACAASAAIAGScA
+AAAAAADtAQMABwAKAAMACTBSAAgACgD7AFYBAwAHAAoAAwAJMFIABwBcAFUAU3RhcnQgTG9vcGlu
+ZyBTZWxlY3RlZCBkb2N1bWVudHMgdG8gZ2F0aGVyIGFsbCB0aGUgZG9jdW1lbnRzIHRoYXQgbmVl
+ZCB0byBiZSB1cGRhdGVkLgAHAAwABgAJMFJSMVMIABoBBQAKAE5vdGVJRExpc3QFABAAY05vdGVF
+bnRyeUxlbmd0aF8CfgAFAA8AY0FycmF5U2VwYXJhdG9yACICVgEEAAsCBAAFAAoATm90ZUlETGlz
+dKYBBQAZAGNNYXhTZWFyY2hGb3JTZWxlY3RlZERvY3MADgIEABwCBQAKAE5vdGVJRExpc3QFAAoA
+Tm90ZUlETGlzdAUADwBjQXJyYXlTZXBhcmF0b3IAIgJ+AFYBIgIJAgUACgBOb3RlSURMaXN0BQAK
+AE5vdGVJRExpc3QFAA8AY0NhdGVnb3J5Tm90ZUlEAAUADwBjQXJyYXlTZXBhcmF0b3IAIgIBAAAA
+hAMJAgIAGScAAAAAAADtAfsAVgH7BUYBAwAHAJAAiQAJMFIyUzNTNVM2UzdTOFM5UzEwUzExUzEz
+UzE0UzE1UzE2UzE3UzE4UzE5UzIwUzIxUzIzUzI0UzI1UzI2UzI3UzI4UzI5UjMwUzMxUzMyUzMz
+UzM0UzM1UzM3UzM4UzQwUjQxUzQyUzQ0UzQ1UzQ2UzQ3UzQ4UzQ5UzUwUzUxUzUzUjU4UjU5UgAH
+ACIAHABSZW1vdmUgYWxsIGNhdGVnb3J5IE5vdGUgSURzBwAMAAUACTBSMVMAAQA6AAoATm90ZUlE
+TGlzdAUACgBOb3RlSURMaXN0BQAPAGNDYXRlZ29yeU5vdGVJRAABAAAAhAMDAAcAGgATAAkwUjFT
+MlM0UzVTNlM3UzhTOVMABwAkAB0AUmVtb3ZlIGFsbCBkdXBsaWNhdGUgTm90ZSBJRHMABwAMAAUA
+CTBSMVMAAQA6AAoATm90ZUlETGlzdAUACgBOb3RlSURMaXN0BQAPAGNBcnJheVNlcGFyYXRvcgAq
+AIYDqwEDAAcAIAAaAAkwUjFTMlM0UzZTN1M4UzlTMTBTMTFTMTJTCAA6AAEABgBGb3VuZCAFAAoA
+Tm90ZUlETGlzdGoBVgEiAgEACwAgZG9jdW1lbnRzLgAiAvsBSQEDAAcAIgAbAAkwUjJTM1M0UzZT
+OFM5UzEwUzExUzEyUzEzUwABABoADQBOb3ROb3RlSURMaXN0AAEAAAADAAcADgAHAAkwUjFTMlMA
+BwAyACwARGV0ZXJtaW5lIGlmIHRoZSBkb2N1bWVudCBzaG91bGQgYmUgdXBkYXRlZC4HAAwABgAJ
+MFJSMVMBADQECQB0bXBQcm9tcHQAAQA1AFRoZSBmb2xsb3dpbmcgaW5mb3JtYXRpb24gd2lsbCBi
+ZSB1c2VkIHRvIHVwZGF0ZSB0aGUgAAUACgBOb3RlSURMaXN0agFWASICAQAJACBkb2N1bWVudAAi
+AgUACgBOb3RlSURMaXN0agEAAAAAAAAAAPA/DwKvABgADAABAAEAcwCuAAwAAQAAAK4ABAC1AyIC
+AQABAC4AIgIFAAoAY1Byb21wdFRhYiICBQAKAGNQcm9tcHRUYWIiAgUAEQBjUHJvbXB0TmV3TGlu
+ZVR3bwAiAgUACgBjUHJvbXB0VGFiIgIBAAYARmllbGQ6IgIFAAoAY1Byb21wdFRhYiICBQAKAGNQ
+cm9tcHRUYWIiAgUACQBFZGl0RmllbGQAIgIFABEAY1Byb21wdE5ld0xpbmVPbmUAIgIFAAoAY1By
+b21wdFRhYiICAQASAERhdGEgdHlwZS9hY3Rpb246ICICBQAKAGNQcm9tcHRUYWIiAgUACABEYXRh
+VHlwZSICBQARAGNQcm9tcHROZXdMaW5lT25lACICBQAKAGNQcm9tcHRUYWIiAgUACABEYXRhVHlw
+ZQEABwBJbXBsb2RlAAEABwBFeHBsb2RlAB8CBAAKAq8AEAI2AAEACwBTZXBhcmF0b3I6IAAFAAoA
+Y1Byb21wdFRhYiICBQAJAFNlcGFyYXRvcgAiAq4A2gEFAAgARGF0YVR5cGUBAAkAVGV4dCBMZWZ0
+AAEADgBUZXh0IExlZnQgQmFjax8CAQAKAFRleHQgUmlnaHQfAgEADwBUZXh0IFJpZ2h0IEJhY2sA
+HwIEAAoCrwB+ATwAAQAPAFNlYXJjaCBzdHJpbmc6IAAFAAoAY1Byb21wdFRhYiICBQAMAEV4dHJh
+Y3RWYWx1ZSICrgBCAQUACABEYXRhVHlwZQEAEQBSZXBsYWNlIFN1YnN0cmluZwABAAcAUmVwbGFj
+ZQAfAgQACgKvAAoBmAABAA8AU2VhcmNoIHN0cmluZzogAAUACgBjUHJvbXB0VGFiIgIFAAwARnJv
+bVJhd1ZhbHVlIgIFABEAY1Byb21wdE5ld0xpbmVPbmUAIgIFAAoAY1Byb21wdFRhYiICAQAQAFJl
+cGxhY2Ugc3RyaW5nOiAiAgUACgBjUHJvbXB0VGFiIgIFAAgAUmF3VmFsdWUiAq4AcgAFAAgARGF0
+YVR5cGUFAA0AY05vUHJvbXB0TGlzdAAKAq8ATgAKAAEAAACuAEQAAQAHAFZhbHVlOiAABQAKAGNQ
+cm9tcHRUYWIiAgUACgBjUHJvbXB0VGFiIgIFAAgAUmF3VmFsdWVWASICrgAEALUJIgIFABEAY1By
+b21wdE5ld0xpbmVUd28AIgIBABsAV291bGQgeW91IGxpa2UgdG8gY29udGludWU/ACIChQEDAAcA
+kgGLAQkwUjFTMlM0UzVTNlM4UzEwUzExUzEyUzEzUzE0UzE1UzE2UzE4UzIwUzIxUzIyUzIzUzI0
+UzI1UzI2UzI3UzI4UzI5UzMwUzMxUzMyUzMzUzM0UzM1UzM2UjM3UzM4UzM5UzQwUzQxUzQyUzQz
+UzQ0UzQ1UzQ2UzQ3UzQ4UjQ5UzUwUzUxUzUyUzUzUzU0UzU1UzU2UzU3UzU4UjU5UzYwUzYxUzYy
+UjY0UzY1UzY2UzcwUzcxUzcyUzczUzc0Uzc1Uzc2Uzc3Uzc4Ujc5UzgwUzg4Uzg5UzkwUzkxUzky
+UzkzUzk0Uzk1Uzk2Ujk3Uzk4UzEwMlMxMDNTMTA0UzEwNVMxMDZTMTA3UzEwOFMxMDlTMTEwUzEx
+MVMxMTJTMTEzUzExNFMxMTVTMTE2UzExN1MxMThTMTE5UzEyMFIxMjFTMTIyUzEyNFIxMjVTMTI2
+UjEyN1MxMjhTMTI5UzEzMFMxMzFTMTMyUzEzNFMxMzVTMTM2UzEzN1MxMzhSMTM5UzE0MFMxNDFT
+AAgArAAFABMAY0VuYWJsZUNvbmZpcm1hdGlvbgCvAIwAgAAFAAkAdG1wUHJvbXB0AAUAEQBjUHJv
+bXB0TmV3TGluZU9uZQArAIYD+wFJAQIADgAAAAAAAAAFABQARWRpdEZpZWxkUHJvbXB0VGl0bGUF
+AAkAdG1wUHJvbXB0ALADrwAYAAoAAQAAAK4ADgABAAAAwgGuAAQAtQOzAq4ADAABAAAArgAEALUD
+AwAHAFwAVQAJMFIyUzNTNFI2UjhTMTBTMTFTMTJTMTNTMTRTMTVTMTZTMThSMjBTMjJTMjRTMjVT
+MjZSMjdTMjlSMzBTMzFTMzJTMzNTMzRTMzVTMzZTMzhSMzlTAAcAWgBUAExvb3AgdGhyb3VnaCBz
+ZWxlY3RlZCBkb2NzIHRha2luZyBlYWNoIE5vdGVJRExpc3Qgb3V0IG9mIHRoZSBsaXN0IGFzIGl0
+IGlzIHByb2Nlc3NlZAcADAAGAAkwUlIxUwEAIAAOAERvY1VwZGF0ZUNvdW50AAAAAAAAAAAAAAMA
+BwAOAAcACTBSMVMyUwABACQAEgBEb2NOYXZpZ2F0aW9uQ291bnQAAAAAAAAAAAAAAwAHAA4ABwAJ
+MFIxUzJTAAgAegkFAA4ARG9jVXBkYXRlQ291bnQFAAoATm90ZUlETGlzdGoBDgKQAFYBWAEAAAAA
+AAAAAAAACwKvADgJHgkFAAoATm90ZUlETGlzdAUACgBOb3RlSURMaXN0fgABAAAAjQMJAgUADQBO
+b3ROb3RlSURMaXN0AAUADQBOb3ROb3RlSURMaXN0AH4AHwIJAgUAAgBlZgAAAAAAAAAA8D8JAgUA
+AgBlZgUACQBFZGl0RmllbGQAagEMAgUAAgBlZgUAAgBlZgAAAAAAAAAA8D8iAgkCBQANAGZvcm11
+bGFSZXN1bHQABQAOAERhdGFUeXBlQWN0aW9u+wFVAQkCBQAGAFJFTWFyawEAfAAgKipSRU0qKiBU
+aGUgdmFsdWVzIGVudGVyZWQgYWJvdmUgd2lsbCBiZSBhcHBsaWVkIHRvIGFsbCBzZWxlY3RlZCBk
+b2MuIElmIGRhdGEgY29udmVyc2lvbiBkb2Vzbid0IHdvcmsgdGhlbiBkb24ndCBzZXQgZmllbGQu
+CQIFAA0AZm9ybXVsYVJlc3VsdABaAa8AVAUiBQUACQB0bXBQcm9tcHQAAQAVAEVycm9yIHdpdGgg
+Tm90ZUlEIG9mIAB+ACICAQALAC4gQ29udGludWU/ACICBQAKAGNQcm9tcHRUYWIiAgUAEQBjUHJv
+bXB0TmV3TGluZU9uZQAiAgUACgBjUHJvbXB0VGFiIgIBAAcARXJyb3I6IAAiAgUACgBjUHJvbXB0
+VGFiIgIFAAoAY1Byb21wdFRhYiICBQANAEZvcm11bGFSZXN1bHQAVgEiAgUAEQBjUHJvbXB0TmV3
+TGluZU9uZQAiAgUACgBjUHJvbXB0VGFiIgIBAAkARm9ybXVsYTogACICBQAKAGNQcm9tcHRUYWIi
+AgUACgBjUHJvbXB0VGFiIgIFAA4ARGF0YVR5cGVBY3Rpb24iAgUAEQBjUHJvbXB0TmV3TGluZU9u
+ZQAiAgUACgBjUHJvbXB0VGFiIgIFAA4ARGF0YVR5cGVBY3Rpb24BAA0ARWRpdEZpZWxkW2VmXQBH
+Aq8AOgAYAAEADgBFZGl0RmllbGRbZWZdOq4AIgABAAYARmllbGQ6BQAKAGNQcm9tcHRUYWIiAq4A
+BAC1AyICBQAKAGNQcm9tcHRUYWIiAgUACQBFZGl0RmllbGQABQACAGVmIAIiAgUAEQBjUHJvbXB0
+TmV3TGluZU9uZQAiAgUACgBjUHJvbXB0VGFiIgIBABIARGF0YSB0eXBlL2FjdGlvbjogIgIFAAoA
+Y1Byb21wdFRhYiICBQAIAERhdGFUeXBlIgIFABEAY1Byb21wdE5ld0xpbmVPbmUAIgIFAAoAY1By
+b21wdFRhYiICBQAIAERhdGFUeXBlAQARAFJlcGxhY2UgU3Vic3RyaW5nAAEABwBSZXBsYWNlAB8C
+BAAKAq8A+ACUAAEADgBGcm9tUmF3VmFsdWU6IAUACgBjUHJvbXB0VGFiIgIFAAwARnJvbVJhd1Zh
+bHVlVgEiAgUAEQBjUHJvbXB0TmV3TGluZU9uZQAiAgUACgBjUHJvbXB0VGFiIgIBAAoAUmF3VmFs
+dWU6ICICBQAKAGNQcm9tcHRUYWIiAgUACABSYXdWYWx1ZVYBIgKuAGQABQAIAERhdGFUeXBlBQAN
+AGNOb1Byb21wdExpc3QACgKvAEAACgABAAAArgA2AAEACgBSYXdWYWx1ZTogBQAKAGNQcm9tcHRU
+YWIiAgUACABSYXdWYWx1ZVYBIgKuAAQAtQUiAgkCBQAJAHRtcFByb21wdAAFABEAY1Byb21wdE5l
+d0xpbmVPbmUAKwCGA/sBSQECAA4AAAAAAAAAAQAIAEVycm9yIC0gBQAUAEVkaXRGaWVsZFByb21w
+dFRpdGxlIgIFAAkAdG1wUHJvbXB0ALADrwAaAUwABQAPAEVycm9yTm90ZUlETGlzdAAFAA8ARXJy
+b3JOb3RlSURMaXN0AAUADwBjQXJyYXlTZXBhcmF0b3IAIgJ+AFYBIgIJAq4AzgAFAA8AY0Vycm9y
+Q2hlY2tDb2RlAPsBVQEBAAAACwKvAKQAmAAFABEAY0Vycm9ySW5mb3JtYXRpb24A+wFVAQUAEQBj
+UHJvbXB0TmV3TGluZU9uZQArAIYD+wFJAQIADQAAAAAAAAABABMAVW5hYmxlIHRvIFVwZGF0ZSAt
+IAAFABQARWRpdEZpZWxkUHJvbXB0VGl0bGUiAgUAEQBjRXJyb3JJbmZvcm1hdGlvbgD7AVUBsAMf
+Aq4ADAABAAAArgAEALUDwgGuAAQAtQOzA64AMgAFAAkARWRpdEZpZWxkAAUAAgBlZiACBQANAGZv
+cm11bGFSZXN1bHQAxAKuAAQAtQP7BkgBBQASAERvY05hdmlnYXRpb25Db3VudAUAFABjTWF4VXBk
+YXRlZERvY3VtZW50cw8CrwAsAhoABQAKAE5vdGVJRExpc3QBAAAACQKuABICBQAOAERvY1VwZGF0
+ZUNvdW50BQAOAERvY1VwZGF0ZUNvdW50AAAAAAAAAADwPyICCQICABknAAAAAAAA7QH7AFYBBQAG
+AFJFTWFyawEAswAgKipSRU0qKiBJZiB3ZSBoYXZlbid0IHByb2Nlc3NlZCBhbGwgZG9jcyB5ZXQg
+YnV0IHRoZSBjdXJyZW50IGRvYyBpcyBub3QgaW4gdGhlIE5vdGVJRExpc3QgbGlzdCwga2VlcCBs
+b29waW5nIC4uLiBpZiBjbnQgZXhjZWVkcyBNYXhVcGRhdGVkRG9jdW1lbnRzIGFzc3VtZSBpbmZp
+bml0ZSBsb29wIGFuZCBzdG9wIAAJAgUADgBEb2NVcGRhdGVDb3VudAUACgBOb3RlSURMaXN0agEO
+An4ABQAKAE5vdGVJRExpc3R2Ah4BBAAcAn4ABQANAE5vdE5vdGVJRExpc3QAdgIeAQQAHAKvAKgA
+nAB+AAUACgBOb3RlSURMaXN0dgIeAQUAEgBEb2NOYXZpZ2F0aW9uQ291bnQFABQAY01heFVwZGF0
+ZWREb2N1bWVudHMOAhwCBAACABknAAAAAAAA7QH7AFYBBQASAERvY05hdmlnYXRpb25Db3VudAUA
+EgBEb2NOYXZpZ2F0aW9uQ291bnQAAAAAAAAAAPA/IgIJAvsERgGuAAwAAQAAAK4ABAC1A7MFrgAE
+ALUDswSuABoAAgAZJwAAAAAAAO0B+wBWAbMCrgAEALUD+wJGAQMABwB8BHYECTBSMlMzUzRTNlM3
+UzhTOVJSMTFTMTNTMTVTMTZTMTdTMThTMTlTMjBTMjFSMjNSMjRTMjVTMjdTMjhTMjlTMzBTMzFT
+MzJTMzNTMzRSMzVTMzZTMzdTMzhTNDBSNDJTNDNTNDRTNDZTNDdTNDhTNTBTNTFTNTNTNTRTNTVT
+NTZTNTdTNTlSNjBTNjFTNjNTNjRTNjZSNjdTNjhTNzBSNzJTNzRTNzVTNzdSNzlSODBTODFTODJT
+ODNTODRTODVTODZTODdTODhTODlSOTBTOTFTOTJTOTNTOTRTOTVTOTZTOTdTOThTOTlTMTAxUzEw
+MlMxMDNTMTA0UjEwNVMxMDZTMTA3UzEwOFMxMDlTMTEwUzExMVMxMTJTMTEzUzExNFMxMTVTMTE2
+UjExN1MxMThTMTE5UzEyMFMxMjJTMTI0UzEyNVMxMjZTMTI3UzEyOFMxMjlTMTMwUzEzMVMxMzJT
+MTMzUzEzNFMxMzVTMTM2UzEzN1MxMzhTMTQyUzE0M1IxNDRTMTQ1UzE0NlMxNDdTMTQ4UzE0OVMx
+NTBTMTUxUzE1MlMxNTNSMTU0UzE1NVMxNTZTMTU3UjE1OVMxNjBTMTYxUzE2NVMxNjZTMTY3UzE2
+OFMxNjlTMTcwUzE3MVMxNzNTMTc0UzE3NlMxNzdTMTc4UzE3OVMxODBTMTgxUzE4MlMxODNTMTg0
+UzE4NlMxODdTMTg4UzE4OVIxOTBTMTkxUzE5M1IxOTRTMTk1UjE5NlMxOTdTMTk4UzE5OVMyMDFT
+MjAyUzIwM1MyMDVSMjA3UzIwOVMyMTBTMjExUzIxMlMyMTNTMjE0UzIxNVMyMTdSMjE5UzIyMVMy
+MjJTMjI0UzIyNVMyMjZTMjI3UzIyOFMyMjlTMjMwUjIzMVMyMzJTMjM0UzIzNVMyMzZTMjM4UzIz
+OVMyNDFSMjQzUzI0NVMyNDdTMjQ4UzI0OVMyNTBTMjUxUzI1MlIyNTRTMjU2UzI1OFMyNTlTMjYw
+UzI2MVMyNjJTMjYzUzI2NFMyNjVTMjY3UjI2OVMyNzBTMjcxUzI3MlMyNzNTMjc0UzI3NVMyNzdT
+Mjc4UzI3OVMyODFSMjgyUzI4M1MyODRTMjg1UzI4N1IyODlTMjkzUzI5NFMyOTVTMjk2UjI5N1Iy
+OTlSMzAxUzMwMlMzMDNTMzA0UzMwNVIzMDZTMzA3UzMwOVIzMTFSMzEyUzMxM1MzMTRTMzE1UzMx
+N1IzMjJSMzI0UjMyNVMzMjZTMzI4UjMzMFMzMzFTMzMyUzMzNFMzMzVTMzM2UzMzN1MzMzhTMzQx
+UzM0MlMzNDNTMzQ0UzM0NVMzNDZTMzQ3UzM0OFMzNTFTMzUyUzM1M1MzNTVTMzU3UjM1OVMzNjFT
+MzYzUzM2NFMzNjVTMzY2UzM2N1MzNjhTMzY5UzM3MFMzNzFTMzczUjM3OFIzODBSMzgxUzM4MlMz
+ODNTMzg0UzM4N1IzODlSMzkwUjM5MVIzOTNSMzk1UzQwMFI0MDFTNDAyUjQwM1IIAPIABQAKAE5v
+dGVJRExpc3QFAA8ARXJyb3JOb3RlSURMaXN0AB8CBQAPAGNBcnJheVNlcGFyYXRvcgAqAIYDqwGF
+AQEAAAALAq8ApACYAAUAEQBjRXJyb3JJbmZvcm1hdGlvbgD7AVUBBQARAGNQcm9tcHROZXdMaW5l
+T25lACsAhgP7AUkBAgANAAAAAAAAAAEAEwBVbmFibGUgdG8gVXBkYXRlIC0gAAUAFABFZGl0Rmll
+bGRQcm9tcHRUaXRsZSICBQARAGNFcnJvckluZm9ybWF0aW9uAPsBVQGwAx8CrgAMAAEAAACuAAQA
+tQMDAAcAfgB3AAkwUlIyUzRTNlM4UzlTMTBTMTFTMTJTMTNTMTRTMTVTMTZTMTdTMThTMTlTMjBT
+MjFSMjNTMjVTMjdTMjhTMjlTMzBTMzFTMzJTMzNTMzRTMzZSMzhTMzlTNDBTNDFTNDJTNDNTNDRT
+NDZTNDdTNDhTNTBSNTFTAAgAYAABABIATmF2aWdhdGVkIHRocm91Z2ggBQAOAERvY1VwZGF0ZUNv
+dW50BQASAERvY05hdmlnYXRpb25Db3VudCICVgEiAgEACwAgZG9jdW1lbnRzLgAiAvsBSQEDAAcA
+IgAbAAkwUlIyUzNTNFM2UzdTOFM5UzEwUzExUzEyUwAAAAgBAQALAFBlcmZvcm1lZCAnAAUACABE
+YXRhVHlwZSICAQAHACcgZm9yICcAIgIFAAkARWRpdEZpZWxkAAEAAgAsIIUCIgIBAAcAJyBmaWVs
+ZAAiAgUACQBFZGl0RmllbGQAagEAAAAAAAAAAPA/DwKvABoADAABAAIAcyCuAA4AAQABACAArgAE
+ALUDIgIBAAMAb24gACICBQAOAERvY1VwZGF0ZUNvdW50VgEiAgEACQAgZG9jdW1lbnQAIgIFAA4A
+RG9jVXBkYXRlQ291bnQAAAAAAAAAAPA/DwKvABgADAABAAEAcwCuAAwAAQAAAK4ABAC1AyICAQAB
+AC4AIgL7AUkBAwAHAIoAgwAJMFIyUzNTNFM1UzZTN1M4UzEwUzExUzEyUzEzUzE0UzE1UzE2UzE3
+UzE5UzIxUzIyUzIzUzI0UzI2UzI3UzI4UzI5UzMwUzMxUzMyUzMzUzM1UzM2UzM3UzM4UzM5UzQw
+UzQyUzQzUzQ0UzQ1UzQ2UzQ3UzQ4UzQ5UzUwUzUxUzUyUwAsAAAAHgABAA8AW0RhdGFiYXNlQWRt
+aW5dAOcAdQIDAAcADAAFAAkwUzBFAA==
+</rawitemdata></item></note>
 
