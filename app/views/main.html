@@ -23,8 +23,8 @@
                   </tr>
                   <tr ng-repeat="debt in debtList">
                     <td>
-                      <button ng-click="debts.editDebtDDS(debt.id)" id="delete" class="btn btn-default btn-large">Edit via DDS</button>
-                      <button ng-click="debts.deleteDebt(debt.id)" id="edit" class="btn btn-default btn-large">Delete via xe:RestService</button>
+                      <button ng-click="debts.editDebtDDS(debt.id)" id="edit" class="btn btn-default btn-large">Edit via DDS</button>
+                      <button ng-click="debts.deleteDebt(debt.id)" id="delete" class="btn btn-default btn-large">Delete via xe:RestService</button>
                     </td>
                     <td>{{debt.who}}</td>
                     <td>{{debt.quantity}}</td>

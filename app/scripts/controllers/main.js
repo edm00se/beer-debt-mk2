@@ -94,7 +94,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
       var debtData = 'who' + '#' + vm.who;
       debtData += '~quantity' + '#' + vm.quantity;
       debtData += '~reasons' + '#' + vm.reasons;
-      $http.post(path + '/(createDebt)?OpenAgent', debtData)
+      $http.post(path + '(createDebt)?OpenAgent', debtData)
         .success(function(data) {
           console.log('succcess, msg: ' + data);
           //location.href = 'index.html';
