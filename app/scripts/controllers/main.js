@@ -47,32 +47,39 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
     };
 
     vm.editDebtDDS = function(unid) {
-      console.log('editing via dds');
+      console.log('editing via dds, loads detail page and then values');
+        $location.path('#/details/' + unid);
+    };
+
+  }
+]);
+
+homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$location', '$routeParams',
+  function($scope, $http, $timeout, $location, $routeParams) {
+    var vm = this;
+
+    console.log('home controlleer = debtDetailCtrl');
+    console.log($scope.debt);
+
+    var exUnid = $routeParams.unid;
+
+    vm.loadValues = function(unid) {
       $http.get(path + 'api/data/documents/unid/' + unid)
         .success(function(data) {
           console.log(data.who);
           console.log(data.Quantity);
           console.log(data.reason);
-            //console.log(toJson(data))
-          $scope.debt = data;
-          console.log($scope.debt);
-          //location.href = 'debt-detail.html';
-          $location.path('#/details');
+          vm.debt = data;
+          console.log(vm.debt);
         })
         .error(function(data) {
           console.log('Error: ' + data);
         });
     };
 
-  }
-]);
-
-homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$location',
-  function($scope, $http, $timeout, $location) {
-    var vm = this;
-
-    console.log('home controlleer = debtDetailCtrl');
-    console.log($scope.debt);
+    if( null != exUnid && undefined != exUnid ){
+      vm.loadValues(exUnid);
+    }
 
     vm.createDebt = function() {
       console.log('create');

@@ -36,6 +36,11 @@ angular
         controller: 'DebtDetailCtrl',
         controllerAs: 'debt'
       })
+      .when('/details/:unid', {
+        templateUrl: 'views/debt-detail.html',
+        controller: 'DebtDetailCtrl',
+        controllerAs: 'debt'
+      })
       .when('/create', {
         templateUrl: 'views/debt-creation.html',
         controller: 'DebtDetailCtrl',
