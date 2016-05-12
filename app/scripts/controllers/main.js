@@ -17,7 +17,6 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
         console.log('Error w/ DDS get: ' + err);
         $http.get('api.xsp/beerDebt')
           .success(function(data){
-            //console.log(data);
             console.log('Error getting view list via DDS, failling over to api.xsp/beerDebt');
             vm.debtList = data.items;
           })
@@ -34,7 +33,7 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
       $http.post(path + 'api.xsp/deleteBeerDebt', data)
         .success(function(data) {
           window.location.reload();
-          console.log('Success, response body: '+data);
+          console.log('Success, response body: ' + data);
         })
         .error(function(data) {
           console.log('Error: ' + data);
@@ -43,10 +42,12 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
 
     vm.editDebt = function(unid) {
       console.log('editing....');
+      /*
       var data = {
         'unid': unid
       };
-      console.log(data.unid);
+      */
+      console.log(unid);
       $location.path('#/details/' + unid);
       /*
       $http.post(path + 'api.xsp/getBeerDebt', data)
@@ -87,8 +88,17 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
           vm.debt = data;
           console.log(vm.debt);
         })
-        .error(function(data) {
-          console.log('Error: ' + data);
+        .error(function(err) {
+          console.log('Error w/ DDS values load: ' + err);
+          $http.get('api.xsp/getDebt/unid/' + unid)
+            .success(function(myData){
+              console.log(myData);
+              vm.debt = myData;
+              vm.debt.id = vm.debt['@unid'];
+            })
+            .error(function(er){
+              console.log('Error: ' + er);
+            });
         });
     };
 
@@ -99,12 +109,10 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
 
     vm.createDebt = function() {
       console.log('create');
-
       $http.post(path + 'api.xsp/createBeerDebt', $scope.debt)
         .success(function(data) {
           console.log('succcess');
           console.log(data);
-          //location.href = 'index.html';
           $location.path('#/');
         })
         .error(function(data) {
@@ -120,7 +128,6 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
       $http.post(path + '(createDebt)?OpenAgent', debtData)
         .success(function(data) {
           console.log('succcess, msg: ' + data);
-          //location.href = 'index.html';
           $location.path('#/');
         })
         .error(function(data) {
@@ -139,7 +146,6 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
       console.log(data.unid);
       $http.post(path + 'api.xsp/updateBeerDebt', data)
         .success(function(returnData) {
-          //location.href = 'index.html';
           $location.path('#/');
           console.log('Update success: ' + returnData);
         })

@@ -31,15 +31,10 @@ angular
         controller: 'DebtListCtrl',
         controllerAs: 'debts'
       })
-      .when('/details', {
-        templateUrl: 'views/debt-detail.html',
-        controller: 'DebtDetailCtrl',
-        controllerAs: 'debt'
-      })
       .when('/details/:unid', {
         templateUrl: 'views/debt-detail.html',
         controller: 'DebtDetailCtrl',
-        controllerAs: 'debt'
+        controllerAs: 'vm'
       })
       .when('/create', {
         templateUrl: 'views/debt-creation.html',

@@ -7,28 +7,28 @@
     <div class="col-sm-4">
         <label>ID</label>
         <br/>
-        <input class="form-control" name="who" type="text" ng-model="debt.id">
+        <input class="form-control" name="who" type="text" ng-model="vm.debt.id">
     </div>
 </div>
 <div class="row" style="width: 50%">
     <div class="col-sm-4">
         <label>Who</label>
         <br/>
-        <input id="debt-who" class="form-control" name="who" type="text" ng-model="debt.who">
+        <input id="debt-who" class="form-control" name="who" type="text" ng-model="vm.debt.who">
     </div>
 </div>
 <div class="row" style="width: 50%">
     <div class="col-sm-4">
         <label>Quantity</label>
         <br/>
-        <input id="debt-quantity" class="form-control" name="quantity" type="text" ng-model="debt.quantity">
+        <input id="debt-quantity" class="form-control" name="quantity" type="text" ng-model="vm.debt.Quantity">
     </div>
 </div>
 <div class="row" style="width: 50%">
     <div class="col-sm-4">
         <label>Reasons</label>
         <br/>
-        <input id="debt-reasons" class="form-control" name="reasons" type="text" ng-model="debt.reasons">
+        <input id="debt-reasons" class="form-control" name="reasons" type="text" ng-model="vm.debt.reasons">
     </div>
 </div>
 <br/>
@@ -37,6 +37,6 @@
         <a class="btn btn-default" href="#/">Cancel</a>
     </div>
     <div class="col-sm-2">
-        <button class="btn btn-default" ng-click="debt.updateDebt(debt.id,debt.who,debt.quantity,debt.reasons)">Save via xe:RestService</button>
+        <button class="btn btn-default" ng-click="vm.updateDebt(vm.debt.id,vm.debt.who,vm.debt.Quantity,vm.debt.reasons)">Save via xe:RestService</button>
     </div>
 </div>

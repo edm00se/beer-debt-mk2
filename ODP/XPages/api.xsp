@@ -114,4 +114,18 @@ return theSearch;}]]>
 			</xe:viewItemFileService>
 		</xe:this.service>
 	</xe:restService>
+	
+	<!-- CRUD for xe:documentJsonService -->
+	<xe:restService
+		id="restService5"
+		pathInfo="getDebt">
+		<xe:this.service>
+			<xe:documentJsonService
+				contentType="application/json"
+				defaultItems="true"
+				compact="true"
+				formName="beerDebt">
+			</xe:documentJsonService>
+		</xe:this.service>
+	</xe:restService>
 </xp:view>
