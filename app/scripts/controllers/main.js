@@ -9,9 +9,22 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
 
     //var myURL = '/api.xsp/beerDebt';
     var myURL = path + 'api/data/collections/name/debt';
-    $http.get(myURL).success(function(data) {
-      $scope.debtList = data;
-    });
+    $http.get(myURL)
+      .success(function(data) {
+        vm.debtList = data;
+      })
+      .error(function(err){
+        console.log('Error w/ DDS get: ' + err);
+        $http.get('api.xsp/beerDebt')
+          .success(function(data){
+            //console.log(data);
+            console.log('Error getting view list via DDS, failling over to api.xsp/beerDebt');
+            vm.debtList = data.items;
+          })
+          .error(function(err){
+            console.log('Attempted to fail over to non-DDS, still error: ' + err);
+          });
+      });
 
 
     vm.deleteDebt = function(unid) {
@@ -34,20 +47,21 @@ homeControllers.controller('DebtListCtrl', ['$scope', '$http', '$location',
         'unid': unid
       };
       console.log(data.unid);
+      $location.path('#/details/' + unid);
+      /*
       $http.post(path + 'api.xsp/getBeerDebt', data)
         .success(function(returnData) {
           $scope.debt = returnData;
           console.log($scope.debt);
-          //location.href = 'debt-detail.html';
-          $location.path('#/details');
         })
         .error(function(data) {
           console.log('Error: ' + data);
         });
+      */
     };
 
     vm.editDebtDDS = function(unid) {
-      console.log('editing via dds, loads detail page and then values');
+      console.log('editing via dds, loads detail page and then values, unid: ' + unid);
         $location.path('#/details/' + unid);
     };
 
@@ -62,6 +76,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
     console.log($scope.debt);
 
     var exUnid = $routeParams.unid;
+    console.log('loading values from doc w/ unid: ' + exUnid);
 
     vm.loadValues = function(unid) {
       $http.get(path + 'api/data/documents/unid/' + unid)
@@ -78,6 +93,7 @@ homeControllers.controller('DebtDetailCtrl', ['$scope', '$http', '$timeout', '$l
     };
 
     if( null !== exUnid && undefined !== exUnid ){
+      console.log('Loading values from ' + exUnid);
       vm.loadValues(exUnid);
     }
 

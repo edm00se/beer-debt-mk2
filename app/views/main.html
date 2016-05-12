@@ -21,7 +21,7 @@
                     <th>Reason</th>
                     <th>ID</th>
                   </tr>
-                  <tr ng-repeat="debt in debtList">
+                  <tr ng-repeat="debt in debts.debtList">
                     <td>
                       <button ng-click="debts.editDebtDDS(debt.id)" id="edit" class="btn btn-default btn-large">Edit via DDS</button>
                       <button ng-click="debts.deleteDebt(debt.id)" id="delete" class="btn btn-default btn-large">Delete via xe:RestService</button>
