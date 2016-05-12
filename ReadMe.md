@@ -14,7 +14,7 @@ Required:
 
 To Use:
 
-* Clone the repository		`git clone https://edm00se@bitbucket.org/edm00se/beer-debt-mk2.git`
+* Clone the repository		`git clone https://github.com/edm00se/beer-debt-mk2.git`
 * Install dependencies from npm	`npm install`, then `bower install`
 * Perform the build				`grunt`
 * Import the On Disk Project (ODP) in Designer’s Package Explorer (or Navigator)
