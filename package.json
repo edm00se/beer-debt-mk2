@@ -40,6 +40,7 @@
   },
   "scripts": {
     "test": "karma start test/karma.conf.js",
-    "notpostinstall": "/node_modules/bower/bin/bower install"
+    "postinstall": "bower install && npm run build",
+    "build": "grunt"
   }
 }

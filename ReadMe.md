@@ -15,8 +15,9 @@ For the [Normalizing XPages Development](http://iamiconus.org/iamiconus/iconus20
 ### To Use:
 
 * Clone the repository		`git clone https://github.com/edm00se/beer-debt-mk2.git`
-* Install dependencies from npm	`npm install`, then `bower install`
-* Perform the build				`grunt`
+* Install dependencies from npm	`npm install`
+  * the post-install script for this will run the necessary `bower install` and initial build with `grunt`
+  * subsequent builds can make use of `npm run build` (which means that bower and grunt are not needed to be installed globally)
 * Import the On Disk Project (ODP) in Designer’s Package Explorer (or Navigator)
 * Right-click the ODP and Associate with New/Existing NSF
 * Done!
